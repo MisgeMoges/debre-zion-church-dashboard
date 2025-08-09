@@ -2,41 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Community Dashboard Design System - Professional & Modern */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base Colors - Soft and Professional */
+    --background: 248 250 252; /* slate-50 */
+    --foreground: 15 23 42; /* slate-800 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card System */
+    --card: 0 0% 100%; /* pure white */
+    --card-foreground: 15 23 42; /* slate-800 */
 
+    /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 15 23 42;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary Brand - Emerald Green */
+    --primary: 160 84% 39%; /* emerald-600 */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 160 84% 45%; /* emerald-500 */
+    --primary-dark: 160 84% 35%; /* emerald-700 */
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Soft Blues */
+    --secondary: 215 28% 97%; /* slate-100 */
+    --secondary-foreground: 15 23 42;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - Subtle Greys */
+    --muted: 220 14% 96%; /* slate-100 */
+    --muted-foreground: 71 84% 47%; /* slate-500 */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Vibrant Emerald */
+    --accent: 160 84% 39%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status Colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --warning: 45 93% 58%; /* amber-400 */
+    --warning-foreground: 15 23 42;
+    --success: 160 84% 39%; /* emerald-600 */
+    --success-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Border & Input */
+    --border: 220 13% 91%; /* slate-200 */
+    --input: 220 13% 91%;
+    --ring: 160 84% 39%;
 
-    --radius: 0.5rem;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(160 84% 39%), hsl(160 84% 45%));
+    --gradient-soft: linear-gradient(135deg, hsl(220 14% 96%), hsl(0 0% 100%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 14% 98%));
+
+    /* Shadows */
+    --shadow-soft: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-medium: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
+    --shadow-large: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    --shadow-glow: 0 0 20px hsl(160 84% 39% / 0.15);
+
+    /* Animations */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +128,104 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Card Variants */
+  .card-elevated {
+    @apply bg-card rounded-xl border border-border/50;
+    box-shadow: var(--shadow-medium);
+    background: var(--gradient-card);
+    transition: var(--transition-smooth);
+  }
+
+  .card-elevated:hover {
+    box-shadow: var(--shadow-large);
+    transform: translateY(-1px);
+  }
+
+  .card-glow {
+    @apply bg-card rounded-xl border border-primary/20;
+    box-shadow: var(--shadow-glow);
+    background: var(--gradient-card);
+  }
+
+  /* Button Variants */
+  .btn-gradient {
+    background: var(--gradient-primary);
+    @apply text-primary-foreground border-0;
+    transition: var(--transition-smooth);
+  }
+
+  .btn-gradient:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Sidebar Styles */
+  .sidebar-nav {
+    @apply flex flex-col gap-1 p-4;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground;
+    transition: var(--transition-smooth);
+  }
+
+  .sidebar-item:hover {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .sidebar-item.active {
+    @apply bg-primary text-primary-foreground;
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
