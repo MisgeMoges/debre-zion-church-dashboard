@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
+import { BookingForm } from "@/components/forms/BookingForm";
+import { DeleteConfirmation } from "@/components/forms/DeleteConfirmation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,6 +102,10 @@ const bookingTrendsData = [
 export default function Bookings() {
   const [bookings, setBookings] = useState<Booking[]>(mockBookings);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | undefined>();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState<Booking | null>(null);
 
   const filteredBookings = bookings.filter(booking =>
     booking.facility.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -147,6 +153,41 @@ export default function Bookings() {
     cancelled: "bg-destructive text-destructive-foreground",
   };
 
+  const handleAddBooking = () => {
+    setSelectedBooking(undefined);
+    setShowForm(true);
+  };
+
+  const handleEditBooking = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setShowForm(true);
+  };
+
+  const handleDeleteBooking = (booking: Booking) => {
+    setBookingToDelete(booking);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleFormSubmit = (bookingData: Booking) => {
+    if (selectedBooking) {
+      // Update existing booking
+      setBookings(prev => prev.map(b => b.id === selectedBooking.id ? { ...bookingData, id: selectedBooking.id } : b));
+    } else {
+      // Add new booking
+      const newId = Math.max(...bookings.map(b => b.id)) + 1;
+      setBookings(prev => [...prev, { ...bookingData, id: newId }]);
+    }
+    setShowForm(false);
+  };
+
+  const confirmDelete = () => {
+    if (bookingToDelete) {
+      setBookings(prev => prev.filter(b => b.id !== bookingToDelete.id));
+      setShowDeleteConfirm(false);
+      setBookingToDelete(null);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
@@ -161,7 +202,7 @@ export default function Bookings() {
             </p>
           </div>
           
-          <Button variant="gradient">
+          <Button variant="gradient" onClick={handleAddBooking}>
             <Plus className="w-4 h-4 mr-2" />
             New Booking
           </Button>
@@ -258,10 +299,10 @@ export default function Bookings() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleEditBooking(booking)}>
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleDeleteBooking(booking)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -271,6 +312,23 @@ export default function Bookings() {
             </TableBody>
           </Table>
         </Card>
+
+        {/* Booking Form */}
+        <BookingForm
+          booking={selectedBooking}
+          open={showForm}
+          onClose={() => setShowForm(false)}
+          onSubmit={handleFormSubmit}
+        />
+
+        {/* Delete Confirmation */}
+        <DeleteConfirmation
+          open={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={confirmDelete}
+          title="Delete Booking"
+          itemName={`booking for ${bookingToDelete?.facility}`}
+        />
       </div>
     </DashboardLayout>
   );

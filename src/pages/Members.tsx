@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
+import { MemberForm } from "@/components/forms/MemberForm";
+import { DeleteConfirmation } from "@/components/forms/DeleteConfirmation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,6 +98,10 @@ const memberGrowthData = [
 export default function Members() {
   const [members, setMembers] = useState<Member[]>(mockMembers);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | undefined>();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
 
   const filteredMembers = members.filter(member =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -150,6 +156,41 @@ export default function Members() {
     student: "bg-blue-500 text-white",
   };
 
+  const handleAddMember = () => {
+    setSelectedMember(undefined);
+    setShowForm(true);
+  };
+
+  const handleEditMember = (member: Member) => {
+    setSelectedMember(member);
+    setShowForm(true);
+  };
+
+  const handleDeleteMember = (member: Member) => {
+    setMemberToDelete(member);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleFormSubmit = (memberData: Member) => {
+    if (selectedMember) {
+      // Update existing member
+      setMembers(prev => prev.map(m => m.id === selectedMember.id ? { ...memberData, id: selectedMember.id } : m));
+    } else {
+      // Add new member
+      const newId = Math.max(...members.map(m => m.id)) + 1;
+      setMembers(prev => [...prev, { ...memberData, id: newId }]);
+    }
+    setShowForm(false);
+  };
+
+  const confirmDelete = () => {
+    if (memberToDelete) {
+      setMembers(prev => prev.filter(m => m.id !== memberToDelete.id));
+      setShowDeleteConfirm(false);
+      setMemberToDelete(null);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
@@ -164,7 +205,7 @@ export default function Members() {
             </p>
           </div>
           
-          <Button variant="gradient">
+          <Button variant="gradient" onClick={handleAddMember}>
             <Plus className="w-4 h-4 mr-2" />
             Add Member
           </Button>
@@ -267,10 +308,10 @@ export default function Members() {
                   <TableCell>{member.lastActive}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleEditMember(member)}>
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={() => handleDeleteMember(member)}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -280,6 +321,23 @@ export default function Members() {
             </TableBody>
           </Table>
         </Card>
+
+        {/* Member Form */}
+        <MemberForm
+          member={selectedMember}
+          open={showForm}
+          onClose={() => setShowForm(false)}
+          onSubmit={handleFormSubmit}
+        />
+
+        {/* Delete Confirmation */}
+        <DeleteConfirmation
+          open={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={confirmDelete}
+          title="Delete Member"
+          itemName={memberToDelete?.name}
+        />
       </div>
     </DashboardLayout>
   );

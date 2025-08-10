@@ -1,7 +1,10 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
-import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
+import { ClientMessages } from "@/components/messaging/ClientMessages";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Megaphone,
   Calendar,
@@ -98,8 +101,27 @@ export default function Dashboard() {
         {/* Charts */}
         <DashboardCharts />
 
-        {/* Recent Activity */}
-        <RecentActivity />
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Recent Activity */}
+            <RecentActivity />
+          </div>
+          
+          <div className="space-y-6">
+            {/* Client Messages */}
+            <Card className="card-elevated p-6">
+              <Tabs defaultValue="messages" className="w-full">
+                <TabsList className="grid w-full grid-cols-1">
+                  <TabsTrigger value="messages">Messages</TabsTrigger>
+                </TabsList>
+                <TabsContent value="messages" className="mt-4">
+                  <ClientMessages />
+                </TabsContent>
+              </Tabs>
+            </Card>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );
