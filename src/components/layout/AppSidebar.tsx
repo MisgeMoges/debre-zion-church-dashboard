@@ -10,13 +10,17 @@ import {
   Settings,
   Menu,
   BarChart3,
-  X
+  X,
+  MessageSquare,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
+  { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Announcements", href: "/announcements", icon: Megaphone },
   { name: "Bookings", href: "/bookings", icon: Calendar },
   { name: "Members", href: "/members", icon: Users },
@@ -29,9 +33,10 @@ const navigation = [
 interface AppSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  onLogout?: () => void;
 }
 
-export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
+export function AppSidebar({ collapsed, onToggle, onLogout }: AppSidebarProps) {
   const location = useLocation();
 
   return (
@@ -92,6 +97,22 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
           })}
         </div>
       </nav>
+
+      {/* Logout */}
+      <div className="px-4 pb-4">
+        <Separator className="mb-4" />
+        <Button
+          variant="ghost"
+          onClick={onLogout}
+          className={cn(
+            "w-full justify-start gap-3 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/50",
+            collapsed && "justify-center"
+          )}
+        >
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && <span className="animate-fade-in">Logout</span>}
+        </Button>
+      </div>
 
       {/* Footer */}
       {!collapsed && (

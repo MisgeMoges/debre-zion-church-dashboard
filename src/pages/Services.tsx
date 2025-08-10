@@ -4,10 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { ServiceForm } from "@/components/forms/ServiceForm";
+import { DeleteConfirmation } from "@/components/forms/DeleteConfirmation";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Plus, Search, Edit, Trash2, Settings, Users, Clock, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -32,8 +31,9 @@ const mockServices = [
 export default function Services() {
   const [services, setServices] = useState(mockServices);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const [deleteService, setDeleteService] = useState(null);
   const { toast } = useToast();
 
   const totalServices = services.length;
@@ -47,40 +47,23 @@ export default function Services() {
     service.provider.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const serviceData = {
-      id: editingService?.id || Date.now(),
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      category: formData.get("category") as string,
-      price: Number(formData.get("price")),
-      duration: formData.get("duration") as string,
-      capacity: Number(formData.get("capacity")),
-      status: formData.get("status") as string,
-      provider: formData.get("provider") as string,
-    };
-
+  const handleSubmit = (serviceData: any) => {
     if (editingService) {
       setServices(services.map(s => s.id === editingService.id ? serviceData : s));
-      toast({ title: "Service updated successfully" });
     } else {
-      setServices([serviceData, ...services]);
-      toast({ title: "Service added successfully" });
+      setServices([{ ...serviceData, id: Date.now() }, ...services]);
     }
-
-    setIsDialogOpen(false);
     setEditingService(null);
   };
 
   const handleEdit = (service: any) => {
     setEditingService(service);
-    setIsDialogOpen(true);
+    setIsFormOpen(true);
   };
 
   const handleDelete = (id: number) => {
     setServices(services.filter(s => s.id !== id));
+    setDeleteService(null);
     toast({ title: "Service deleted successfully" });
   };
 
@@ -93,68 +76,16 @@ export default function Services() {
             <h1 className="text-3xl font-bold gradient-text">Services</h1>
             <p className="text-muted-foreground">Manage community services and programs</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2" onClick={() => setEditingService(null)}>
-                <Plus className="h-4 w-4" />
-                Add Service
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{editingService ? "Edit Service" : "Add New Service"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Service Name</Label>
-                  <Input id="name" name="name" defaultValue={editingService?.name || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea id="description" name="description" defaultValue={editingService?.description || ""} rows={3} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <select id="category" name="category" defaultValue={editingService?.category || "fitness"} className="w-full p-2 border rounded-md">
-                    <option value="fitness">Fitness</option>
-                    <option value="counseling">Counseling</option>
-                    <option value="workshop">Workshop</option>
-                    <option value="support">Support</option>
-                    <option value="education">Education</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price ($)</Label>
-                  <Input id="price" name="price" type="number" step="0.01" defaultValue={editingService?.price || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="duration">Duration</Label>
-                  <Input id="duration" name="duration" placeholder="e.g., 60 min" defaultValue={editingService?.duration || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="capacity">Capacity</Label>
-                  <Input id="capacity" name="capacity" type="number" defaultValue={editingService?.capacity || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="provider">Provider</Label>
-                  <Input id="provider" name="provider" defaultValue={editingService?.provider || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <select id="status" name="status" defaultValue={editingService?.status || "active"} className="w-full p-2 border rounded-md">
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="suspended">Suspended</option>
-                  </select>
-                </div>
-                <div className="flex gap-2 pt-4">
-                  <Button type="submit" className="flex-1">Save</Button>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">Cancel</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            className="gap-2" 
+            onClick={() => {
+              setEditingService(null);
+              setIsFormOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            Add Service
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -289,7 +220,7 @@ export default function Services() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDelete(service.id)}
+                          onClick={() => setDeleteService(service)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -301,6 +232,25 @@ export default function Services() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Forms and Dialogs */}
+        <ServiceForm
+          service={editingService}
+          open={isFormOpen}
+          onClose={() => {
+            setIsFormOpen(false);
+            setEditingService(null);
+          }}
+          onSubmit={handleSubmit}
+        />
+
+        <DeleteConfirmation
+          open={!!deleteService}
+          onClose={() => setDeleteService(null)}
+          onConfirm={() => handleDelete(deleteService?.id)}
+          title="Delete Service"
+          description={`Are you sure you want to delete "${deleteService?.name}"? This action cannot be undone.`}
+        />
       </div>
     </DashboardLayout>
   );

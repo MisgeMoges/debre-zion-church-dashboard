@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ProfileSettings } from "@/components/profile/ProfileSettings";
 import { 
   RefreshCw, 
   Bell, 
@@ -62,10 +63,15 @@ const mockNotifications: Notification[] = [
   }
 ];
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  onLogout?: () => void;
+}
+
+export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
