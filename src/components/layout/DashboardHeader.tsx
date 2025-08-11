@@ -216,25 +216,32 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
             </div>
           </div>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowProfile(true)}>
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowProfile(true)}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowProfile(true)}>
             <Lock className="mr-2 h-4 w-4" />
             <span>Change Password</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-red-600">
+          <DropdownMenuItem className="text-red-600" onClick={onLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Profile Settings Modal */}
+      <ProfileSettings
+        open={showProfile}
+        onClose={() => setShowProfile(false)}
+        onLogout={onLogout || (() => {})}
+      />
     </header>
   );
 }

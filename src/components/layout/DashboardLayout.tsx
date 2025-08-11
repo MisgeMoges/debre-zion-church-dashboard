@@ -15,9 +15,10 @@ export function DashboardLayout({ children, onLogout }: DashboardLayoutProps) {
       <AppSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onLogout={onLogout}
       />
       <div className="flex-1 overflow-auto flex flex-col">
-        <DashboardHeader />
+        <DashboardHeader onLogout={onLogout} />
         <main className="flex-1 overflow-auto">
           {children}
         </main>
