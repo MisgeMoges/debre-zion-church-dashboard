@@ -95,7 +95,11 @@ const memberGrowthData = [
   { month: "Jun", members: 600 },
 ];
 
-export default function Members() {
+interface MembersProps {
+  onLogout?: () => void;
+}
+
+export default function Members({ onLogout }: MembersProps) {
   const [members, setMembers] = useState<Member[]>(mockMembers);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -192,7 +196,7 @@ export default function Members() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 animate-fade-in">

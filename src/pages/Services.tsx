@@ -28,7 +28,11 @@ const mockServices = [
   { id: 5, name: "Computer Basics", description: "Basic computer skills training", category: "workshop", price: 30, duration: "180 min", capacity: 10, status: "inactive", provider: "Tech Team" },
 ];
 
-export default function Services() {
+interface ServicesProps {
+  onLogout?: () => void;
+}
+
+export default function Services({ onLogout }: ServicesProps) {
   const [services, setServices] = useState(mockServices);
   const [searchTerm, setSearchTerm] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -68,7 +72,7 @@ export default function Services() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

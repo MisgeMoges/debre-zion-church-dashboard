@@ -95,7 +95,11 @@ const mockAnnouncements: Announcement[] = [
   },
 ];
 
-export default function Announcements() {
+interface AnnouncementsProps {
+  onLogout?: () => void;
+}
+
+export default function Announcements({ onLogout }: AnnouncementsProps) {
   const [announcements, setAnnouncements] = useState<Announcement[]>(mockAnnouncements);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
@@ -157,7 +161,7 @@ export default function Announcements() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 animate-fade-in">

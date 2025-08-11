@@ -15,7 +15,11 @@ import {
   Settings,
 } from "lucide-react";
 
-export default function Dashboard() {
+interface DashboardProps {
+  onLogout?: () => void;
+}
+
+export default function Dashboard({ onLogout }: DashboardProps) {
   // Mock data for summary cards
   const summaryData = [
     {
@@ -77,7 +81,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="animate-fade-in">

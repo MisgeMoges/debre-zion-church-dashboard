@@ -36,7 +36,11 @@ const mockHolidays = [
   { id: 5, name: "Easter", date: "2024-03-31", endDate: "2024-03-31", location: "Community Hall", type: "religious", status: "completed", description: "Easter celebration and egg hunt" },
 ];
 
-export default function Holidays() {
+interface HolidaysProps {
+  onLogout?: () => void;
+}
+
+export default function Holidays({ onLogout }: HolidaysProps) {
   const [holidays, setHolidays] = useState(mockHolidays);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -95,7 +99,7 @@ export default function Holidays() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

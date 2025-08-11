@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Messages from "./pages/Messages";
 import Announcements from "./pages/Announcements";
@@ -20,6 +21,7 @@ const queryClient = new QueryClient();
 const App = () => {
   const handleLogout = () => {
     console.log("User logged out");
+    // Navigate to login page would go here
   };
 
   return (
@@ -29,6 +31,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/login" element={<Login />} />
             <Route path="/" element={<Dashboard onLogout={handleLogout} />} />
             <Route path="/messages" element={<Messages onLogout={handleLogout} />} />
             <Route path="/announcements" element={<Announcements onLogout={handleLogout} />} />

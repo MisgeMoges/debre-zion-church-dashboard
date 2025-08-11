@@ -29,7 +29,11 @@ const mockDonations = [
   { id: 5, donor: "David Lee", amount: 1000, date: "2024-08-04", status: "completed", type: "one-time" },
 ];
 
-export default function Donations() {
+interface DonationsProps {
+  onLogout?: () => void;
+}
+
+export default function Donations({ onLogout }: DonationsProps) {
   const [donations, setDonations] = useState(mockDonations);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -81,7 +85,7 @@ export default function Donations() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

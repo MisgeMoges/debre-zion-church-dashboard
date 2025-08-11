@@ -29,7 +29,11 @@ const mockPayments = [
   { id: 5, member: "Eva Martinez", amount: 300, date: "2024-08-04", status: "completed", type: "premium", method: "bank" },
 ];
 
-export default function Payments() {
+interface PaymentsProps {
+  onLogout?: () => void;
+}
+
+export default function Payments({ onLogout }: PaymentsProps) {
   const [payments, setPayments] = useState(mockPayments);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -82,7 +86,7 @@ export default function Payments() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

@@ -99,7 +99,11 @@ const bookingTrendsData = [
   { month: "Jun", bookings: 67 },
 ];
 
-export default function Bookings() {
+interface BookingsProps {
+  onLogout?: () => void;
+}
+
+export default function Bookings({ onLogout }: BookingsProps) {
   const [bookings, setBookings] = useState<Booking[]>(mockBookings);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -189,7 +193,7 @@ export default function Bookings() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 animate-fade-in">

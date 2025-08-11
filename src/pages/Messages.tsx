@@ -114,7 +114,11 @@ const mockMessages: Message[] = [
   }
 ];
 
-export default function Messages() {
+interface MessagesProps {
+  onLogout?: () => void;
+}
+
+export default function Messages({ onLogout }: MessagesProps) {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [searchTerm, setSearchTerm] = useState("");
@@ -217,7 +221,7 @@ export default function Messages() {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout onLogout={onLogout}>
       <div className="p-6 space-y-8">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
