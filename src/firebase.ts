@@ -1,6 +1,7 @@
 // firebase.ts
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 import {
   getAuth,
   updateProfile,
@@ -23,12 +24,13 @@ const firebaseConfig = {
 // Initialize Firebase app
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
+const db = getFirestore(app);
 // Initialize Firebase Auth and export
 const auth = getAuth(app);
 
 export {
   app,
+  db,
   analytics,
   auth,
   updateProfile,

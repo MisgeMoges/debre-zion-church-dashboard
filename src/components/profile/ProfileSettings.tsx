@@ -75,6 +75,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+      console.log("Current user:", user);
       if (user) {
         setProfileData({
           name: user.displayName || "",

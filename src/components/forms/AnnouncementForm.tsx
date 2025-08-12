@@ -13,16 +13,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 interface Announcement {
-  id?: number;
+  id: string;
   title: string;
-  content: string;
-  author: string;
-  date: string;
-  status: "active" | "archived" | "draft";
-  views: number;
-}
+  body: string;
+  imageUrl?: string;
+  isRead?: boolean;
+  targetCategories?: string[] | null;
+  targetType?: string;
+  targetUserIds?: string[] | null;
+  timestamp?: any;
+};
 
 interface AnnouncementFormProps {
   announcement?: Announcement;
@@ -32,20 +35,56 @@ interface AnnouncementFormProps {
 }
 
 export function AnnouncementForm({ announcement, open, onClose, onSubmit }: AnnouncementFormProps) {
+  console.log("AnnouncementForm rendered with:", announcement);
   const { toast } = useToast();
+
   const [formData, setFormData] = useState<Announcement>({
-    title: announcement?.title || "",
-    content: announcement?.content || "",
-    author: announcement?.author || "Admin",
-    date: announcement?.date || new Date().toISOString().split('T')[0],
-    status: announcement?.status || "draft",
-    views: announcement?.views || 0,
+    id: "",
+    title: "",
+    body: "",
+    imageUrl: "",
+    isRead: false,
+    targetCategories: [],
+    targetType: "all",
+    targetUserIds: [],
+    timestamp: null,
   });
+
+  // 🔹 Update formData when announcement changes
+  useEffect(() => {
+    if (announcement) {
+      setFormData({
+        id: announcement.id || "",
+        title: announcement.title || "",
+        body: announcement.body || "",
+        imageUrl: announcement.imageUrl || "",
+        isRead: announcement.isRead || false,
+        targetCategories: announcement.targetCategories || [],
+        targetType: announcement.targetType || "all",
+        targetUserIds: announcement.targetUserIds || [],
+        timestamp: announcement.timestamp || null,
+      });
+    } else {
+      // Reset form when creating new announcement
+      setFormData({
+        id: "",
+        title: "",
+        body: "",
+        imageUrl: "",
+        isRead: false,
+        targetCategories: [],
+        targetType: "all",
+        targetUserIds: [],
+        timestamp: null,
+      });
+    }
+  }, [announcement, open]); // include open so it resets when reopening the dialog
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.content) {
+    if (!formData.title || !formData.body) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -91,11 +130,11 @@ export function AnnouncementForm({ announcement, open, onClose, onSubmit }: Anno
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Content *</Label>
+            <Label htmlFor="body">Content *</Label>
             <Textarea
-              id="content"
-              value={formData.content}
-              onChange={(e) => handleChange("content", e.target.value)}
+              id="body"
+              value={formData.body}
+              onChange={(e) => handleChange("body", e.target.value)}
               placeholder="Enter announcement content"
               rows={5}
               required
@@ -103,26 +142,27 @@ export function AnnouncementForm({ announcement, open, onClose, onSubmit }: Anno
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="author">Author</Label>
-              <Input
-                id="author"
-                value={formData.author}
-                onChange={(e) => handleChange("author", e.target.value)}
-                placeholder="Author name"
-              />
-            </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
+              <Label htmlFor="imageUrl">Image URL</Label>
+              <Input
+                id="imageUrl"
+                value={formData.imageUrl}
+                onChange={(e) => handleChange("imageUrl", e.target.value)}
+                placeholder="Optional image URL"
+              />
+            </div>
+          
+            <div className="space-y-2">
+              <Label htmlFor="status">Target Type</Label>
+              <Select value={formData.targetType} onValueChange={(value) => handleChange("targetType", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="Select Target Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="archived">Archived</SelectItem>
+                  <SelectItem value={formData.targetType} onClick={() => handleChange("targetType", "all")}>All</SelectItem>
+                  <SelectItem value={formData.targetType} onClick={() => handleChange("targetType", "clergy")}>Clergy</SelectItem>
+                  <SelectItem value={formData.targetType} onClick={() => handleChange("targetType", "archived")}>Members</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -133,8 +173,8 @@ export function AnnouncementForm({ announcement, open, onClose, onSubmit }: Anno
             <Input
               id="date"
               type="date"
-              value={formData.date}
-              onChange={(e) => handleChange("date", e.target.value)}
+              value={formData.timestamp}
+              onChange={(e) => handleChange("timestamp", e.target.value)}
             />
           </div>
 
