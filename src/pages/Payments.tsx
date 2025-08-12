@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { PaymentForm } from "@/components/forms/PaymentForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Plus, Search, Edit, Trash2, CreditCard, Clock, CheckCircle, AlertCircle } from "lucide-react";
@@ -36,8 +35,8 @@ interface PaymentsProps {
 export default function Payments({ onLogout }: PaymentsProps) {
   const [payments, setPayments] = useState(mockPayments);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingPayment, setEditingPayment] = useState(null);
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
   const { toast } = useToast();
 
   const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0);
@@ -50,34 +49,36 @@ export default function Payments({ onLogout }: PaymentsProps) {
     payment.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const paymentData = {
-      id: editingPayment?.id || Date.now(),
-      member: formData.get("member") as string,
-      amount: Number(formData.get("amount")),
-      date: formData.get("date") as string,
-      status: formData.get("status") as string,
-      type: formData.get("type") as string,
-      method: formData.get("method") as string,
-    };
-
-    if (editingPayment) {
-      setPayments(payments.map(p => p.id === editingPayment.id ? paymentData : p));
+  const handleFormSubmit = (paymentData: any) => {
+    if (selectedPayment) {
+      // Update existing payment
+      setPayments(payments.map(p => 
+        p.id === selectedPayment.id 
+          ? { ...paymentData, id: selectedPayment.id }
+          : p
+      ));
       toast({ title: "Payment updated successfully" });
     } else {
-      setPayments([paymentData, ...payments]);
+      // Add new payment
+      const newPayment = {
+        ...paymentData,
+        id: Math.max(...payments.map(p => p.id)) + 1
+      };
+      setPayments([newPayment, ...payments]);
       toast({ title: "Payment added successfully" });
     }
-
-    setIsDialogOpen(false);
-    setEditingPayment(null);
+    setIsFormDialogOpen(false);
+    setSelectedPayment(null);
   };
 
   const handleEdit = (payment: any) => {
-    setEditingPayment(payment);
-    setIsDialogOpen(true);
+    setSelectedPayment(payment);
+    setIsFormDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedPayment(null);
+    setIsFormDialogOpen(true);
   };
 
   const handleDelete = (id: number) => {
@@ -94,63 +95,10 @@ export default function Payments({ onLogout }: PaymentsProps) {
             <h1 className="text-3xl font-bold gradient-text">Payments</h1>
             <p className="text-muted-foreground">Track member payments and transactions</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2" onClick={() => setEditingPayment(null)}>
-                <Plus className="h-4 w-4" />
-                Add Payment
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>{editingPayment ? "Edit Payment" : "Add New Payment"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="member">Member Name</Label>
-                  <Input id="member" name="member" defaultValue={editingPayment?.member || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount ($)</Label>
-                  <Input id="amount" name="amount" type="number" defaultValue={editingPayment?.amount || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
-                  <Input id="date" name="date" type="date" defaultValue={editingPayment?.date || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="type">Type</Label>
-                  <select id="type" name="type" defaultValue={editingPayment?.type || "membership"} className="w-full p-2 border rounded-md">
-                    <option value="membership">Membership</option>
-                    <option value="event">Event</option>
-                    <option value="service">Service</option>
-                    <option value="premium">Premium</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="method">Payment Method</Label>
-                  <select id="method" name="method" defaultValue={editingPayment?.method || "card"} className="w-full p-2 border rounded-md">
-                    <option value="card">Credit Card</option>
-                    <option value="bank">Bank Transfer</option>
-                    <option value="cash">Cash</option>
-                    <option value="paypal">PayPal</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <select id="status" name="status" defaultValue={editingPayment?.status || "pending"} className="w-full p-2 border rounded-md">
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="failed">Failed</option>
-                  </select>
-                </div>
-                <div className="flex gap-2 pt-4">
-                  <Button type="submit" className="flex-1">Save</Button>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">Cancel</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button className="gap-2 btn-gradient" onClick={handleAdd}>
+            <Plus className="h-4 w-4" />
+            Add Payment
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -289,6 +237,14 @@ export default function Payments({ onLogout }: PaymentsProps) {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Payment Form Dialog */}
+        <PaymentForm
+          payment={selectedPayment}
+          open={isFormDialogOpen}
+          onClose={() => setIsFormDialogOpen(false)}
+          onSubmit={handleFormSubmit}
+        />
       </div>
     </DashboardLayout>
   );

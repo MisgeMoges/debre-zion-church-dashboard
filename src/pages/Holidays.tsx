@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { HolidayForm } from "@/components/forms/HolidayForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Plus, Search, Edit, Trash2, Calendar, Clock, MapPin, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -43,8 +41,8 @@ interface HolidaysProps {
 export default function Holidays({ onLogout }: HolidaysProps) {
   const [holidays, setHolidays] = useState(mockHolidays);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingHoliday, setEditingHoliday] = useState(null);
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
+  const [selectedHoliday, setSelectedHoliday] = useState(null);
   const { toast } = useToast();
 
   const totalHolidays = holidays.length;
@@ -62,35 +60,36 @@ export default function Holidays({ onLogout }: HolidaysProps) {
     holiday.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const holidayData = {
-      id: editingHoliday?.id || Date.now(),
-      name: formData.get("name") as string,
-      date: formData.get("date") as string,
-      endDate: formData.get("endDate") as string,
-      location: formData.get("location") as string,
-      type: formData.get("type") as string,
-      status: formData.get("status") as string,
-      description: formData.get("description") as string,
-    };
-
-    if (editingHoliday) {
-      setHolidays(holidays.map(h => h.id === editingHoliday.id ? holidayData : h));
+  const handleFormSubmit = (holidayData: any) => {
+    if (selectedHoliday) {
+      // Update existing holiday
+      setHolidays(holidays.map(h => 
+        h.id === selectedHoliday.id 
+          ? { ...holidayData, id: selectedHoliday.id }
+          : h
+      ));
       toast({ title: "Holiday updated successfully" });
     } else {
-      setHolidays([holidayData, ...holidays]);
+      // Add new holiday
+      const newHoliday = {
+        ...holidayData,
+        id: Math.max(...holidays.map(h => h.id)) + 1
+      };
+      setHolidays([newHoliday, ...holidays]);
       toast({ title: "Holiday added successfully" });
     }
-
-    setIsDialogOpen(false);
-    setEditingHoliday(null);
+    setIsFormDialogOpen(false);
+    setSelectedHoliday(null);
   };
 
   const handleEdit = (holiday: any) => {
-    setEditingHoliday(holiday);
-    setIsDialogOpen(true);
+    setSelectedHoliday(holiday);
+    setIsFormDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedHoliday(null);
+    setIsFormDialogOpen(true);
   };
 
   const handleDelete = (id: number) => {
@@ -107,63 +106,10 @@ export default function Holidays({ onLogout }: HolidaysProps) {
             <h1 className="text-3xl font-bold gradient-text">Holidays</h1>
             <p className="text-muted-foreground">Manage community holidays and celebrations</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2" onClick={() => setEditingHoliday(null)}>
-                <Plus className="h-4 w-4" />
-                Add Holiday
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{editingHoliday ? "Edit Holiday" : "Add New Holiday"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Holiday Name</Label>
-                  <Input id="name" name="name" defaultValue={editingHoliday?.name || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date">Start Date</Label>
-                  <Input id="date" name="date" type="date" defaultValue={editingHoliday?.date || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="endDate">End Date</Label>
-                  <Input id="endDate" name="endDate" type="date" defaultValue={editingHoliday?.endDate || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
-                  <Input id="location" name="location" defaultValue={editingHoliday?.location || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="type">Type</Label>
-                  <select id="type" name="type" defaultValue={editingHoliday?.type || "celebration"} className="w-full p-2 border rounded-md">
-                    <option value="celebration">Celebration</option>
-                    <option value="festival">Festival</option>
-                    <option value="national">National</option>
-                    <option value="religious">Religious</option>
-                    <option value="cultural">Cultural</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <select id="status" name="status" defaultValue={editingHoliday?.status || "upcoming"} className="w-full p-2 border rounded-md">
-                    <option value="upcoming">Upcoming</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea id="description" name="description" defaultValue={editingHoliday?.description || ""} rows={3} />
-                </div>
-                <div className="flex gap-2 pt-4">
-                  <Button type="submit" className="flex-1">Save</Button>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">Cancel</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button className="gap-2 btn-gradient" onClick={handleAdd}>
+            <Plus className="h-4 w-4" />
+            Add Holiday
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -304,6 +250,14 @@ export default function Holidays({ onLogout }: HolidaysProps) {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Holiday Form Dialog */}
+        <HolidayForm
+          holiday={selectedHoliday}
+          open={isFormDialogOpen}
+          onClose={() => setIsFormDialogOpen(false)}
+          onSubmit={handleFormSubmit}
+        />
       </div>
     </DashboardLayout>
   );
