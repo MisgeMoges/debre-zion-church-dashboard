@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,17 +15,19 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
-import { 
-  RefreshCw, 
-  Bell, 
-  User, 
-  Settings, 
-  Lock, 
+import {
+  RefreshCw,
+  Bell,
+  User,
+  Settings,
+  Lock,
   LogOut,
   Check,
-  X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+import { auth } from "@/firebase";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 interface Notification {
   id: number;
@@ -43,15 +45,15 @@ const mockNotifications: Notification[] = [
     message: "Sarah Johnson requested Tennis Court #1 for tomorrow",
     time: "5 minutes ago",
     read: false,
-    type: "info"
+    type: "info",
   },
   {
     id: 2,
     title: "Payment Received",
     message: "Premium membership payment of $150 received from John Smith",
-    time: "1 hour ago", 
+    time: "1 hour ago",
     read: false,
-    type: "success"
+    type: "success",
   },
   {
     id: 3,
@@ -59,8 +61,8 @@ const mockNotifications: Notification[] = [
     message: "Community Center will be closed next Monday",
     time: "2 hours ago",
     read: true,
-    type: "warning"
-  }
+    type: "warning",
+  },
 ];
 
 interface DashboardHeaderProps {
@@ -73,7 +75,18 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // Add state for current Firebase user
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+
+  // Listen for Firebase Auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -88,20 +101,20 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
   };
 
   const markAsRead = (id: number) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
   const typeColors = {
     info: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
     warning: "bg-warning text-warning-foreground",
-    success: "bg-success text-success-foreground", 
-    error: "bg-destructive text-destructive-foreground"
+    success: "bg-success text-success-foreground",
+    error: "bg-destructive text-destructive-foreground",
   };
 
   return (
@@ -114,7 +127,7 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
         disabled={isRefreshing}
         className="relative"
       >
-        <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+        <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
       </Button>
 
       {/* Notifications */}
@@ -123,8 +136,8 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
           <Button variant="ghost" size="sm" className="relative">
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <Badge 
-                variant="destructive" 
+              <Badge
+                variant="destructive"
                 className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
               >
                 {unreadCount}
@@ -147,7 +160,7 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
                 </Button>
               )}
             </div>
-            
+
             <div className="space-y-2 max-h-80 overflow-y-auto">
               {notifications.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">
@@ -158,7 +171,7 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
                   <div
                     key={notification.id}
                     className={`p-3 rounded-lg border ${
-                      notification.read ? 'bg-muted/50' : 'bg-background'
+                      notification.read ? "bg-muted/50" : "bg-background"
                     } relative group`}
                   >
                     <div className="flex items-start justify-between">
@@ -176,7 +189,7 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
                           {notification.time}
                         </span>
                       </div>
-                      
+
                       {!notification.read && (
                         <Button
                           variant="ghost"
@@ -201,17 +214,20 @@ export function DashboardHeader({ onLogout }: DashboardHeaderProps) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="/avatars/admin.jpg" alt="Admin" />
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarImage
+                src={currentUser?.photoURL || "/avatars/default.jpg"}
+                alt={currentUser?.displayName || "User"}
+              />
+              <AvatarFallback>{currentUser?.displayName?.[0] || "U"}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <div className="flex items-center justify-start gap-2 p-2">
             <div className="flex flex-col space-y-1 leading-none">
-              <p className="font-medium">Admin User</p>
+              <p className="font-medium">{currentUser?.displayName || "User"}</p>
               <p className="w-[200px] truncate text-sm text-muted-foreground">
-                admin@community.com
+                {currentUser?.email || "No Email"}
               </p>
             </div>
           </div>

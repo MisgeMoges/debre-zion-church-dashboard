@@ -6,6 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Shield, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
+
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,28 +18,32 @@ export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
 
-    // Simulate login process
-    setTimeout(() => {
-      if (email && password) {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        });
-        navigate("/");
-      } else {
-        toast({
-          title: "Error",
-          description: "Please enter valid credentials.",
-          variant: "destructive",
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
-  };
+const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    toast({
+      title: "Welcome back!",
+      description: `Signed in as ${user.email}`,
+    });
+
+    navigate("/dashboard");
+  } catch (error: any) {
+    toast({
+      title: "Login failed",
+      description: error.message,
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">

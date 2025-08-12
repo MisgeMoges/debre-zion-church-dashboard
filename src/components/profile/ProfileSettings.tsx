@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,16 @@ import { Switch } from "@/components/ui/switch";
 import { Settings, User, Lock, LogOut, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+import {
+  auth,
+  updateProfile as firebaseUpdateProfile,
+  updateEmail as firebaseUpdateEmail,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  updatePassword as firebaseUpdatePassword,
+} from "@/firebase"; // Adjust import based on your firebase setup
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+
 interface ProfileSettingsProps {
   open: boolean;
   onClose: () => void;
@@ -35,41 +45,95 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("profile");
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  
-  // Profile form state
+
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+
+  // Profile form state synced with Firebase user
   const [profileData, setProfileData] = useState({
-    name: "John Administrator",
-    email: "admin@community.com",
-    role: "System Administrator",
-    phone: "+1 (555) 123-4567",
-    department: "IT Management"
+    name: "",
+    email: "",
+    phone: "",
+    department: "",
+    role: "", // optional
+    photoURL: "",
   });
 
   // Password form state
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
 
-  // Settings state
+  // Settings state (you can persist in localStorage or elsewhere)
   const [settings, setSettings] = useState({
     emailNotifications: true,
     darkMode: false,
-    autoSave: true
+    autoSave: true,
   });
 
-  const handleProfileUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been updated successfully.",
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      if (user) {
+        setProfileData({
+          name: user.displayName || "",
+          email: user.email || "",
+          phone: "", // You can fetch from your DB if you store phone/department
+          department: "",
+          role: "",
+          photoURL: user.photoURL || "",
+        });
+      }
     });
+    return () => unsubscribe();
+  }, []);
+
+  // Update Firebase Auth profile info (displayName and photoURL) and email
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!currentUser) {
+      toast({ title: "Error", description: "No user is signed in", variant: "destructive" });
+      return;
+    }
+
+    try {
+      if (profileData.name !== currentUser.displayName || profileData.photoURL !== currentUser.photoURL) {
+        await firebaseUpdateProfile(currentUser, {
+          displayName: profileData.name,
+          photoURL: profileData.photoURL || null,
+        });
+      }
+
+      if (profileData.email !== currentUser.email) {
+        await firebaseUpdateEmail(currentUser, profileData.email);
+      }
+
+      // TODO: Save phone, department, role to your database if applicable
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile information has been updated successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  // Change password with reauthentication
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    if (!currentUser || !currentUser.email) {
+      toast({ title: "Error", description: "No user is signed in", variant: "destructive" });
+      return;
+    }
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast({
         title: "Error",
@@ -81,23 +145,38 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
 
     if (passwordData.newPassword.length < 8) {
       toast({
-        title: "Error", 
+        title: "Error",
         description: "Password must be at least 8 characters long.",
         variant: "destructive",
       });
       return;
     }
 
-    toast({
-      title: "Password Changed",
-      description: "Your password has been updated successfully.",
-    });
-    
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: ""
-    });
+    try {
+      // Reauthenticate user before password update
+      const credential = EmailAuthProvider.credential(currentUser.email, passwordData.currentPassword);
+      await reauthenticateWithCredential(currentUser, credential);
+
+      // Update password
+      await firebaseUpdatePassword(currentUser, passwordData.newPassword);
+
+      toast({
+        title: "Password Changed",
+        description: "Your password has been updated successfully.",
+      });
+
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to Change Password",
+        description: error.message || "An error occurred.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleLogoutConfirm = () => {
@@ -119,7 +198,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
           <DialogHeader>
             <DialogTitle>Account Settings</DialogTitle>
           </DialogHeader>
-          
+
           <div className="flex h-full">
             {/* Sidebar */}
             <div className="w-48 pr-6 border-r border-border">
@@ -141,9 +220,9 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                     </button>
                   );
                 })}
-                
+
                 <Separator className="my-4" />
-                
+
                 <button
                   onClick={() => setShowLogoutDialog(true)}
                   className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
@@ -161,20 +240,23 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <Avatar className="w-20 h-20">
-                        <AvatarImage src="/placeholder.svg" />
-                        <AvatarFallback className="text-lg">JA</AvatarFallback>
+                        <AvatarImage src={profileData.photoURL || "/placeholder.svg"} />
+                        <AvatarFallback className="text-lg">
+                          {profileData.name ? profileData.name[0].toUpperCase() : "U"}
+                        </AvatarFallback>
                       </Avatar>
                       <Button
                         size="sm"
                         variant="outline"
                         className="absolute -bottom-2 -right-2 rounded-full p-2 h-8 w-8"
+                        // Implement photo upload/change logic here if needed
                       >
                         <Camera className="w-3 h-3" />
                       </Button>
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold">{profileData.name}</h3>
-                      <p className="text-sm text-muted-foreground">{profileData.role}</p>
+                      <p className="text-sm text-muted-foreground">{profileData.role || "User"}</p>
                     </div>
                   </div>
 
@@ -185,7 +267,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                         <Input
                           id="name"
                           value={profileData.name}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
+                          onChange={(e) => setProfileData((prev) => ({ ...prev, name: e.target.value }))}
                         />
                       </div>
                       <div className="space-y-2">
@@ -194,7 +276,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                           id="email"
                           type="email"
                           value={profileData.email}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+                          onChange={(e) => setProfileData((prev) => ({ ...prev, email: e.target.value }))}
                         />
                       </div>
                     </div>
@@ -205,7 +287,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                         <Input
                           id="phone"
                           value={profileData.phone}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                          onChange={(e) => setProfileData((prev) => ({ ...prev, phone: e.target.value }))}
                         />
                       </div>
                       <div className="space-y-2">
@@ -213,7 +295,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                         <Input
                           id="department"
                           value={profileData.department}
-                          onChange={(e) => setProfileData(prev => ({ ...prev, department: e.target.value }))}
+                          onChange={(e) => setProfileData((prev) => ({ ...prev, department: e.target.value }))}
                         />
                       </div>
                     </div>
@@ -241,7 +323,9 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                         id="currentPassword"
                         type="password"
                         value={passwordData.currentPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                        onChange={(e) =>
+                          setPasswordData((prev) => ({ ...prev, currentPassword: e.target.value }))
+                        }
                         required
                       />
                     </div>
@@ -252,7 +336,9 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                         id="newPassword"
                         type="password"
                         value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                        onChange={(e) =>
+                          setPasswordData((prev) => ({ ...prev, newPassword: e.target.value }))
+                        }
                         required
                       />
                     </div>
@@ -263,7 +349,9 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                         id="confirmPassword"
                         type="password"
                         value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        onChange={(e) =>
+                          setPasswordData((prev) => ({ ...prev, confirmPassword: e.target.value }))
+                        }
                         required
                       />
                     </div>
@@ -288,11 +376,15 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="space-y-1">
                         <Label className="text-sm font-medium">Email Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Receive email notifications for important updates</p>
+                        <p className="text-sm text-muted-foreground">
+                          Receive email notifications for important updates
+                        </p>
                       </div>
                       <Switch
                         checked={settings.emailNotifications}
-                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailNotifications: checked }))}
+                        onCheckedChange={(checked) =>
+                          setSettings((prev) => ({ ...prev, emailNotifications: checked }))
+                        }
                       />
                     </div>
 
@@ -303,7 +395,9 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                       </div>
                       <Switch
                         checked={settings.darkMode}
-                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, darkMode: checked }))}
+                        onCheckedChange={(checked) =>
+                          setSettings((prev) => ({ ...prev, darkMode: checked }))
+                        }
                       />
                     </div>
 
@@ -314,14 +408,18 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                       </div>
                       <Switch
                         checked={settings.autoSave}
-                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoSave: checked }))}
+                        onCheckedChange={(checked) =>
+                          setSettings((prev) => ({ ...prev, autoSave: checked }))
+                        }
                       />
                     </div>
 
                     <div className="pt-4">
-                      <Button 
+                      <Button
                         className="btn-gradient"
-                        onClick={() => toast({ title: "Settings saved", description: "Your preferences have been updated." })}
+                        onClick={() =>
+                          toast({ title: "Settings saved", description: "Your preferences have been updated." })
+                        }
                       >
                         Save Preferences
                       </Button>
@@ -334,6 +432,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
         </DialogContent>
       </Dialog>
 
+      {/* Logout Confirmation Dialog */}
       <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -353,3 +452,5 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
     </>
   );
 }
+
+                     

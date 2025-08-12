@@ -17,9 +17,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { signOut } from "firebase/auth";
+import { auth } from "@/firebase"; // adjust path if needed
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: BarChart3 },
+  { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Announcements", href: "/announcements", icon: Megaphone },
   { name: "Bookings", href: "/bookings", icon: Calendar },
@@ -33,12 +35,20 @@ const navigation = [
 interface AppSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
-  onLogout?: () => void;
+  onLogout: () => void;
 }
 
 export function AppSidebar({ collapsed, onToggle, onLogout }: AppSidebarProps) {
   const location = useLocation();
-
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "/"; // redirect to login page after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Optionally show a toast or notification about logout failure
+    }
+  };
   return (
     <div
       className={cn(
@@ -103,7 +113,7 @@ export function AppSidebar({ collapsed, onToggle, onLogout }: AppSidebarProps) {
         <Separator className="mb-4" />
         <Button
           variant="ghost"
-          onClick={onLogout}
+          onClick={handleLogout}
           className={cn(
             "w-full justify-start gap-3 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/50",
             collapsed && "justify-center"
