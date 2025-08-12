@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { DonationForm } from "@/components/forms/DonationForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Plus, Search, Edit, Trash2, DollarSign, TrendingUp, Users, Calendar } from "lucide-react";
@@ -36,8 +35,8 @@ interface DonationsProps {
 export default function Donations({ onLogout }: DonationsProps) {
   const [donations, setDonations] = useState(mockDonations);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingDonation, setEditingDonation] = useState(null);
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
+  const [selectedDonation, setSelectedDonation] = useState(null);
   const { toast } = useToast();
 
   const totalDonations = donations.reduce((sum, donation) => sum + donation.amount, 0);
@@ -50,33 +49,36 @@ export default function Donations({ onLogout }: DonationsProps) {
     donation.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const donationData = {
-      id: editingDonation?.id || Date.now(),
-      donor: formData.get("donor") as string,
-      amount: Number(formData.get("amount")),
-      date: formData.get("date") as string,
-      status: formData.get("status") as string,
-      type: formData.get("type") as string,
-    };
-
-    if (editingDonation) {
-      setDonations(donations.map(d => d.id === editingDonation.id ? donationData : d));
+  const handleFormSubmit = (donationData: any) => {
+    if (selectedDonation) {
+      // Update existing donation
+      setDonations(donations.map(d => 
+        d.id === selectedDonation.id 
+          ? { ...donationData, id: selectedDonation.id }
+          : d
+      ));
       toast({ title: "Donation updated successfully" });
     } else {
-      setDonations([donationData, ...donations]);
+      // Add new donation
+      const newDonation = {
+        ...donationData,
+        id: Math.max(...donations.map(d => d.id)) + 1
+      };
+      setDonations([newDonation, ...donations]);
       toast({ title: "Donation added successfully" });
     }
-
-    setIsDialogOpen(false);
-    setEditingDonation(null);
+    setIsFormDialogOpen(false);
+    setSelectedDonation(null);
   };
 
   const handleEdit = (donation: any) => {
-    setEditingDonation(donation);
-    setIsDialogOpen(true);
+    setSelectedDonation(donation);
+    setIsFormDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedDonation(null);
+    setIsFormDialogOpen(true);
   };
 
   const handleDelete = (id: number) => {
@@ -93,53 +95,10 @@ export default function Donations({ onLogout }: DonationsProps) {
             <h1 className="text-3xl font-bold gradient-text">Donations</h1>
             <p className="text-muted-foreground">Manage community donations</p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2" onClick={() => setEditingDonation(null)}>
-                <Plus className="h-4 w-4" />
-                Add Donation
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>{editingDonation ? "Edit Donation" : "Add New Donation"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="donor">Donor Name</Label>
-                  <Input id="donor" name="donor" defaultValue={editingDonation?.donor || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount ($)</Label>
-                  <Input id="amount" name="amount" type="number" defaultValue={editingDonation?.amount || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
-                  <Input id="date" name="date" type="date" defaultValue={editingDonation?.date || ""} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="type">Type</Label>
-                  <select id="type" name="type" defaultValue={editingDonation?.type || "one-time"} className="w-full p-2 border rounded-md">
-                    <option value="one-time">One-time</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="annual">Annual</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <select id="status" name="status" defaultValue={editingDonation?.status || "pending"} className="w-full p-2 border rounded-md">
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="failed">Failed</option>
-                  </select>
-                </div>
-                <div className="flex gap-2 pt-4">
-                  <Button type="submit" className="flex-1">Save</Button>
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">Cancel</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button className="gap-2 btn-gradient" onClick={handleAdd}>
+            <Plus className="h-4 w-4" />
+            Add Donation
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -280,6 +239,14 @@ export default function Donations({ onLogout }: DonationsProps) {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Donation Form Dialog */}
+        <DonationForm
+          donation={selectedDonation}
+          open={isFormDialogOpen}
+          onClose={() => setIsFormDialogOpen(false)}
+          onSubmit={handleFormSubmit}
+        />
       </div>
     </DashboardLayout>
   );

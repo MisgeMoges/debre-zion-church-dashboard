@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Settings, User, Lock, LogOut, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,6 +50,13 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
     currentPassword: "",
     newPassword: "",
     confirmPassword: ""
+  });
+
+  // Settings state
+  const [settings, setSettings] = useState({
+    emailNotifications: true,
+    darkMode: false,
+    autoSave: true
   });
 
   const handleProfileUpdate = (e: React.FormEvent) => {
@@ -210,7 +218,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                       </div>
                     </div>
 
-                    <Button type="submit" variant="gradient">
+                    <Button type="submit" className="btn-gradient">
                       Update Profile
                     </Button>
                   </form>
@@ -260,7 +268,7 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                       />
                     </div>
 
-                    <Button type="submit" variant="gradient">
+                    <Button type="submit" className="btn-gradient">
                       Change Password
                     </Button>
                   </form>
@@ -276,29 +284,47 @@ export function ProfileSettings({ open, onClose, onLogout }: ProfileSettingsProp
                     </p>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Email Notifications</Label>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium">Email Notifications</Label>
                         <p className="text-sm text-muted-foreground">Receive email notifications for important updates</p>
                       </div>
-                      <input type="checkbox" defaultChecked className="rounded" />
+                      <Switch
+                        checked={settings.emailNotifications}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, emailNotifications: checked }))}
+                      />
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Dark Mode</Label>
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium">Dark Mode</Label>
                         <p className="text-sm text-muted-foreground">Use dark theme for the interface</p>
                       </div>
-                      <input type="checkbox" className="rounded" />
+                      <Switch
+                        checked={settings.darkMode}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, darkMode: checked }))}
+                      />
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Auto-save</Label>
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium">Auto-save</Label>
                         <p className="text-sm text-muted-foreground">Automatically save changes</p>
                       </div>
-                      <input type="checkbox" defaultChecked className="rounded" />
+                      <Switch
+                        checked={settings.autoSave}
+                        onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoSave: checked }))}
+                      />
+                    </div>
+
+                    <div className="pt-4">
+                      <Button 
+                        className="btn-gradient"
+                        onClick={() => toast({ title: "Settings saved", description: "Your preferences have been updated." })}
+                      >
+                        Save Preferences
+                      </Button>
                     </div>
                   </div>
                 </div>

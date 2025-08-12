@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
+import { AnnouncementForm } from "@/components/forms/AnnouncementForm";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -103,7 +104,7 @@ export default function Announcements({ onLogout }: AnnouncementsProps) {
   const [announcements, setAnnouncements] = useState<Announcement[]>(mockAnnouncements);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
 
   const filteredAnnouncements = announcements.filter(announcement =>
     announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -157,7 +158,32 @@ export default function Announcements({ onLogout }: AnnouncementsProps) {
 
   const handleEdit = (announcement: Announcement) => {
     setSelectedAnnouncement(announcement);
-    setIsEditDialogOpen(true);
+    setIsFormDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedAnnouncement(null);
+    setIsFormDialogOpen(true);
+  };
+
+  const handleFormSubmit = (announcementData: Announcement) => {
+    if (selectedAnnouncement) {
+      // Update existing announcement
+      setAnnouncements(announcements.map(a => 
+        a.id === selectedAnnouncement.id 
+          ? { ...announcementData, id: selectedAnnouncement.id }
+          : a
+      ));
+    } else {
+      // Add new announcement
+      const newAnnouncement = {
+        ...announcementData,
+        id: Math.max(...announcements.map(a => a.id)) + 1
+      };
+      setAnnouncements([newAnnouncement, ...announcements]);
+    }
+    setIsFormDialogOpen(false);
+    setSelectedAnnouncement(null);
   };
 
   return (
@@ -174,36 +200,10 @@ export default function Announcements({ onLogout }: AnnouncementsProps) {
             </p>
           </div>
           
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="btn-gradient">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Announcement
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Create New Announcement</DialogTitle>
-                <DialogDescription>
-                  Add a new announcement for the community.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input id="title" placeholder="Enter announcement title" />
-                </div>
-                <div>
-                  <Label htmlFor="content">Content</Label>
-                  <Textarea id="content" placeholder="Enter announcement content" rows={4} />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline">Cancel</Button>
-                <Button className="btn-gradient">Create Announcement</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button className="btn-gradient" onClick={handleAdd}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Announcement
+          </Button>
         </div>
 
         {/* Summary Cards */}
@@ -299,42 +299,13 @@ export default function Announcements({ onLogout }: AnnouncementsProps) {
           </Table>
         </Card>
 
-        {/* Edit Dialog */}
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Edit Announcement</DialogTitle>
-              <DialogDescription>
-                Update the announcement details.
-              </DialogDescription>
-            </DialogHeader>
-            {selectedAnnouncement && (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-title">Title</Label>
-                  <Input
-                    id="edit-title"
-                    defaultValue={selectedAnnouncement.title}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="edit-content">Content</Label>
-                  <Textarea
-                    id="edit-content"
-                    defaultValue={selectedAnnouncement.content}
-                    rows={4}
-                  />
-                </div>
-              </div>
-            )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button className="btn-gradient">Save Changes</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* Announcement Form Dialog */}
+        <AnnouncementForm
+          announcement={selectedAnnouncement}
+          open={isFormDialogOpen}
+          onClose={() => setIsFormDialogOpen(false)}
+          onSubmit={handleFormSubmit}
+        />
       </div>
     </DashboardLayout>
   );
