@@ -11,16 +11,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Contact } from "lucide-react";
 
 interface Booking {
-  id?: number;
-  facility: string;
-  member: string;
+  id?: string;  
+  memberName: string;
   date: string;
-  time: string;
-  duration: string;
   status: "confirmed" | "pending" | "cancelled";
-  createdAt: string;
+  contact: string;
+  serviceType:string;
+  message: string;
 }
 
 interface BookingFormProps {
@@ -30,16 +30,7 @@ interface BookingFormProps {
   onSubmit: (booking: Booking) => void;
 }
 
-const facilities = [
-  "Community Center",
-  "Tennis Court #1",
-  "Tennis Court #2", 
-  "Pool Area",
-  "Basketball Court",
-  "Gym",
-  "Conference Room A",
-  "Conference Room B"
-];
+
 
 const timeSlots = [
   "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
@@ -47,25 +38,23 @@ const timeSlots = [
   "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM"
 ];
 
-const durations = ["30 minutes", "1 hour", "1.5 hours", "2 hours", "3 hours", "4 hours"];
+
 
 export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Booking>({
-    facility: booking?.facility || "",
-    member: booking?.member || "",
+    memberName: booking?.memberName ,
     date: booking?.date || new Date().toISOString().split('T')[0],
-    time: booking?.time || "",
-    duration: booking?.duration || "1 hour",
-    status: booking?.status || "pending",
-    createdAt: booking?.createdAt || new Date().toISOString().split('T')[0],
-    ...(booking?.id && { id: booking.id }),
+   status: booking?.status || "pending",
+   contact: booking?.contact ,
+   serviceType: booking?.serviceType,
+   message: booking?.message
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.facility || !formData.member || !formData.date || !formData.time) {
+    if (!formData.memberName || !formData.date || !formData.message || !formData.contact || !formData.serviceType) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -97,7 +86,7 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="facility">Facility *</Label>
               <Select value={formData.facility} onValueChange={(value) => handleChange("facility", value)}>
                 <SelectTrigger>
@@ -111,14 +100,14 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             
             <div className="space-y-2">
               <Label htmlFor="member">Member *</Label>
               <Input
                 id="member"
-                value={formData.member}
-                onChange={(e) => handleChange("member", e.target.value)}
+                value={formData.memberName}
+                onChange={(e) => handleChange("memberName", e.target.value)}
                 placeholder="Enter member name"
                 required
               />
@@ -137,9 +126,9 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
               />
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="time">Time *</Label>
-              <Select value={formData.time} onValueChange={(value) => handleChange("time", value)}>
+              <Select value={formData.date} onValueChange={(value) => handleChange("date", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
@@ -151,24 +140,41 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration</Label>
-              <Select value={formData.duration} onValueChange={(value) => handleChange("duration", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select duration" />
-                </SelectTrigger>
-                <SelectContent>
-                  {durations.map((duration) => (
-                    <SelectItem key={duration} value={duration}>
-                      {duration}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="duration">Contact</Label>
+              <Input
+                id="contact"
+                type="contact"
+                value={formData.contact}
+                onChange={(e) => handleChange("contact", e.target.value)}
+                required
+              />
+            </div>
+
+             <div className="space-y-2">
+              <Label htmlFor="service type">Service Type</Label>
+              <Input
+                id="service type"
+                value={formData.serviceType}
+                onChange={(e) => handleChange("serviceType", e.target.value)}
+                placeholder="Enter service type"
+                required
+              />
+            </div>
+
+             <div className="space-y-2">
+              <Label htmlFor="message">Message</Label>
+              <Input
+                id="message"
+                value={formData.message}
+                onChange={(e) => handleChange("message", e.target.value)}
+                placeholder="Enter message"
+                required
+              />
             </div>
 
             <div className="space-y-2">
