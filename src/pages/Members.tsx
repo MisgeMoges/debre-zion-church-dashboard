@@ -40,9 +40,12 @@ import {
 interface Member {
   id: number;
   name: string;
+  firstName:string;
+  lastName:string;
+  middlename:string
+  membershipCommitmentConfirmed:string
   email: string;
-  type: "regular" | "premium" | "senior" | "student";
-  joinDate: string;
+  membershipType: "regular" | "premium" | "senior" | "student";
   status: "active" | "inactive" | "suspended";
   lastActive: string;
 }
@@ -52,37 +55,49 @@ const mockMembers: Member[] = [
     id: 1,
     name: "John Smith",
     email: "john.smith@email.com",
-    type: "premium",
-    joinDate: "2024-01-15",
-    status: "active",
+    membershipType: "premium",
+   status: "active",
+   membershipCommitmentConfirmed:'true',
+   firstName:'sifen',
+   lastName:'getachew',
+   middlename:'firerw',
     lastActive: "2024-08-09",
   },
   {
     id: 2,
-    name: "Sarah Johnson",
-    email: "sarah.j@email.com",
-    type: "regular",
-    joinDate: "2024-03-20",
-    status: "active",
-    lastActive: "2024-08-08",
+    name: "John Smith",
+    email: "john.smith@email.com",
+    membershipType: "premium",
+   status: "active",
+   membershipCommitmentConfirmed:'true',
+   firstName:'sifen',
+   lastName:'getachew',
+   middlename:'firerw',
+    lastActive: "2024-08-09",
   },
   {
     id: 3,
-    name: "Mike Chen",
-    email: "mike.chen@email.com",
-    type: "student",
-    joinDate: "2024-02-10",
-    status: "active",
-    lastActive: "2024-08-07",
+    name: "John Smith",
+    email: "john.smith@email.com",
+    membershipType: "premium",
+   status: "active",
+   membershipCommitmentConfirmed:'true',
+   firstName:'sifen',
+   lastName:'getachew',
+   middlename:'firerw',
+    lastActive: "2024-08-09",
   },
   {
     id: 4,
-    name: "Emily Davis",
-    email: "emily.davis@email.com",
-    type: "senior",
-    joinDate: "2023-12-05",
-    status: "inactive",
-    lastActive: "2024-07-15",
+    name: "John Smith",
+    email: "john.smith@email.com",
+    membershipType: "premium",
+   status: "active",
+   membershipCommitmentConfirmed:'true',
+   firstName:'sifen',
+   lastName:'getachew',
+   middlename:'firerw',
+    lastActive: "2024-08-09",
   },
 ];
 
@@ -131,7 +146,7 @@ export default function Members({ onLogout }: MembersProps) {
     },
     {
       title: "Premium Members",
-      value: members.filter(m => m.type === "premium").length,
+      value: members.filter(m => m.membershipType === "premium").length,
       change: "+15%",
       changeType: "positive" as const,
       icon: Crown,
@@ -139,7 +154,7 @@ export default function Members({ onLogout }: MembersProps) {
     },
     {
       title: "Student Members",
-      value: members.filter(m => m.type === "student").length,
+      value: members.filter(m => m.membershipType === "student").length,
       change: "+5%",
       changeType: "positive" as const,
       icon: GraduationCap,
@@ -284,8 +299,8 @@ export default function Members({ onLogout }: MembersProps) {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Join Date</TableHead>
+                <TableHead> MembershipType</TableHead>
+                <TableHead>Membership Commitment Confirmed</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Last Active</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -295,15 +310,15 @@ export default function Members({ onLogout }: MembersProps) {
               {filteredMembers.map((member) => (
                 <TableRow key={member.id}>
                   <TableCell className="font-medium">
-                    {member.name}
+                   ` {member.firstName} +{member.lastName}+{member.middlename}`
                   </TableCell>
                   <TableCell>{member.email}</TableCell>
                   <TableCell>
-                    <Badge className={typeColors[member.type]}>
-                      {member.type}
+                    <Badge className={typeColors[member.membershipType]}>
+                      {member.membershipType}
                     </Badge>
                   </TableCell>
-                  <TableCell>{member.joinDate}</TableCell>
+                  <TableCell>{member.membershipCommitmentConfirmed}</TableCell>
                   <TableCell>
                     <Badge className={statusColors[member.status]}>
                       {member.status}

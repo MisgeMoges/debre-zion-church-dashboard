@@ -206,11 +206,11 @@ export default function Donations({ onLogout }: DonationsProps) {
                   <TableHead>Amount</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Payment Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>Status</TableHead>                  
                   <TableHead>description</TableHead>
                   <TableHead>method</TableHead>
                   <TableHead>transaction Id</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -229,6 +229,10 @@ export default function Donations({ onLogout }: DonationsProps) {
                         {donation.status}
                       </Badge>
                     </TableCell>
+                    
+                    <TableCell>{donation.description}</TableCell>
+                    <TableCell>{donation.method}</TableCell>
+                    <TableCell>{donation.transactionId}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button
@@ -247,9 +251,6 @@ export default function Donations({ onLogout }: DonationsProps) {
                         </Button>
                       </div>
                     </TableCell>
-                    <TableCell>{donation.description}</TableCell>
-                    <TableCell>{donation.method}</TableCell>
-                    <TableCell>{donation.transactionId}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -80,7 +80,9 @@ export function DonationForm({ donation, open, onClose, onSubmit }: DonationForm
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+
+          <div className="grid grid-cols-2 gap-4">
+             <div className="space-y-2">
             <Label htmlFor="donor">Donor Id *</Label>
             <Input
               id="donor"
@@ -92,6 +94,21 @@ export function DonationForm({ donation, open, onClose, onSubmit }: DonationForm
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="transactionId">Transaction ID *</Label>
+            <Input
+              id="transactionId"
+              value={formData.transactionId}
+              onChange={(e) => handleChange("transactionId", e.target.value)}
+              placeholder="Enter transaction Id"
+              required
+            />
+          </div>
+
+
+          </div>
+          
+
+          <div className="space-y-2">
             <Label htmlFor="description">description *</Label>
             <Input
               id="description"
@@ -101,27 +118,9 @@ export function DonationForm({ donation, open, onClose, onSubmit }: DonationForm
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="method">Method *</Label>
-            <Input
-              id="method"
-              value={formData.method}
-              onChange={(e) => handleChange("method", e.target.value)}
-              placeholder="Enter payment method"
-              required
-            />
-          </div>
+         
 
-          <div className="space-y-2">
-            <Label htmlFor="transactionId">Donor Id *</Label>
-            <Input
-              id="transactionId"
-              value={formData.transactionId}
-              onChange={(e) => handleChange("transactionId", e.target.value)}
-              placeholder="Enter transaction Id"
-              required
-            />
-          </div>
+          
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -147,6 +146,17 @@ export function DonationForm({ donation, open, onClose, onSubmit }: DonationForm
                 required
               />
             </div>
+          </div>
+
+           <div className="space-y-2">
+            <Label htmlFor="method">Method *</Label>
+            <Input
+              id="method"
+              value={formData.method}
+              onChange={(e) => handleChange("method", e.target.value)}
+              placeholder="Enter payment method"
+              required
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

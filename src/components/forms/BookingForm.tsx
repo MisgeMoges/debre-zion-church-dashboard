@@ -86,24 +86,8 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            {/* <div className="space-y-2">
-              <Label htmlFor="facility">Facility *</Label>
-              <Select value={formData.facility} onValueChange={(value) => handleChange("facility", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select facility" />
-                </SelectTrigger>
-                <SelectContent>
-                  {facilities.map((facility) => (
-                    <SelectItem key={facility} value={facility}>
-                      {facility}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div> */}
-            
             <div className="space-y-2">
-              <Label htmlFor="member">Member *</Label>
+               <Label htmlFor="member">Member *</Label>
               <Input
                 id="member"
                 value={formData.memberName}
@@ -112,11 +96,9 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
                 required
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+            
             <div className="space-y-2">
-              <Label htmlFor="date">Date *</Label>
+                <Label htmlFor="date">Date *</Label>
               <Input
                 id="date"
                 type="date"
@@ -125,26 +107,22 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
                 required
               />
             </div>
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="time">Time *</Label>
-              <Select value={formData.date} onValueChange={(value) => handleChange("date", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select time" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeSlots.map((time) => (
-                    <SelectItem key={time} value={time}>
-                      {time}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div> */}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+                       <div className="space-y-2">
+              <Label htmlFor="service type">Service Type</Label>
+              <Input
+                id="service type"
+                value={formData.serviceType}
+                onChange={(e) => handleChange("serviceType", e.target.value)}
+                placeholder="Enter service type"
+                required
+              />
+            </div>
+
+            <div  className="grid grid-cols-2 gap-4">
+
+             <div className="space-y-2">
               <Label htmlFor="duration">Contact</Label>
               <Input
                 id="contact"
@@ -156,28 +134,6 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
             </div>
 
              <div className="space-y-2">
-              <Label htmlFor="service type">Service Type</Label>
-              <Input
-                id="service type"
-                value={formData.serviceType}
-                onChange={(e) => handleChange("serviceType", e.target.value)}
-                placeholder="Enter service type"
-                required
-              />
-            </div>
-
-             <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Input
-                id="message"
-                value={formData.message}
-                onChange={(e) => handleChange("message", e.target.value)}
-                placeholder="Enter message"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
                 <SelectTrigger>
@@ -190,7 +146,25 @@ export function BookingForm({ booking, open, onClose, onSubmit }: BookingFormPro
                 </SelectContent>
               </Select>
             </div>
-          </div>
+
+             
+          </div>             
+
+           
+
+            <div className="space-y-2">
+              <Label htmlFor="message">Message</Label>
+              <Input
+                id="message"
+                value={formData.message}
+                onChange={(e) => handleChange("message", e.target.value)}
+                placeholder="Enter message"
+                required
+              />
+            </div>
+          
+
+         
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

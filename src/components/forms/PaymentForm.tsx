@@ -14,12 +14,16 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Payment {
   id?: number;
-  member: string;
+  userID:string;
+  description:string;
   amount: number;
   date: string;
   status: string;
-  type: string;
+  PaymentType: string;
   method: string;
+  cardNumber:string;
+  cardHolder:string;
+  expiryDate:string;
 }
 
 interface PaymentFormProps {
@@ -32,19 +36,23 @@ interface PaymentFormProps {
 export function PaymentForm({ payment, open, onClose, onSubmit }: PaymentFormProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Payment>({
-    member: payment?.member || "",
+    userID: payment?.userID ,
     amount: payment?.amount || 0,
     date: payment?.date || new Date().toISOString().split('T')[0],
     status: payment?.status || "pending",
-    type: payment?.type || "membership",
+    PaymentType: payment?.PaymentType || "membership",
     method: payment?.method || "card",
     ...(payment?.id && { id: payment.id }),
+    cardHolder: payment?.cardHolder,
+    cardNumber: payment?.cardNumber,
+    description: payment?.description,
+    expiryDate:payment?.expiryDate
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.member || formData.amount <= 0) {
+    if (!formData.userID || formData.amount <= 0) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -80,8 +88,8 @@ export function PaymentForm({ payment, open, onClose, onSubmit }: PaymentFormPro
               <Label htmlFor="member">Member Name *</Label>
               <Input
                 id="member"
-                value={formData.member}
-                onChange={(e) => handleChange("member", e.target.value)}
+                value={formData.userID}
+                onChange={(e) => handleChange("userID", e.target.value)}
                 placeholder="Enter member name"
                 required
               />
@@ -115,7 +123,7 @@ export function PaymentForm({ payment, open, onClose, onSubmit }: PaymentFormPro
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Payment Type</Label>
-              <Select value={formData.type} onValueChange={(value) => handleChange("type", value)}>
+              <Select value={formData.PaymentType} onValueChange={(value) => handleChange("PaymentType", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
