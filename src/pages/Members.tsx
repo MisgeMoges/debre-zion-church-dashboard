@@ -375,6 +375,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Member } from "@/types/members";
 import {
   Table,
   TableBody,
@@ -405,63 +406,48 @@ import {
   GraduationCap,
 } from "lucide-react";
 
-interface Member {
-  id: number;
-  firstName: string;
-  lastName: string;
-  middlename: string;
-  membershipCommitmentConfirmed: string;
-  email: string;
-  membershipType: "regular" | "premium" | "senior" | "student";
-  status: "active" | "inactive" | "suspended";
-  lastActive: string;
-}
+// interface Member {
+//   id: number;
+//   firstName: string;
+//   lastName: string;
+//   middlename: string;
+//   membershipCommitmentConfirmed: string;
+//   email: string;
+//   membershipType: "regular" | "premium" | "senior" | "student";
+//   status: "active" | "inactive" | "suspended";
+//   lastActive: string;
+// }
 
 const mockMembers: Member[] = [
   {
-    id: 1,
-    email: "john.smith@email.com",
-    membershipType: "premium",
-    status: "active",
-    membershipCommitmentConfirmed: "true",
-    firstName: "John",
-    lastName: "Smith",
-    middlename: "Allen",
-    lastActive: "2024-08-09",
-  },
-  {
-    id: 2,
-    email: "jane.doe@email.com",
-    membershipType: "regular",
-    status: "inactive",
-    membershipCommitmentConfirmed: "false",
-    firstName: "Jane",
-    lastName: "Doe",
-    middlename: "Marie",
-    lastActive: "2024-07-25",
-  },
-  {
-    id: 3,
-    email: "alex.jones@email.com",
-    membershipType: "student",
-    status: "active",
-    membershipCommitmentConfirmed: "true",
-    firstName: "Alex",
-    lastName: "Jones",
-    middlename: "Robert",
-    lastActive: "2024-08-10",
-  },
-  {
-    id: 4,
-    email: "sara.lee@email.com",
-    membershipType: "senior",
-    status: "suspended",
-    membershipCommitmentConfirmed: "false",
-    firstName: "Sara",
-    lastName: "Lee",
-    middlename: "Elizabeth",
-    lastActive: "2024-06-01",
-  },
+  "id": 1,
+  "email": "sam.wilson@example.com",
+  "firstName": "Sam",
+  "lastName": "Wilson",
+  "middleName": "Lee",
+  "profileImage": "https://example.com/images/sam-wilson.jpg",
+  "memberCategory": "Adult",
+  "maritalStatus": "single",
+  "gender": "male",
+  "membershipType": "regular",
+  "christeningName": "Samuel",
+  "spiritualFatherName": "Father Michael",
+  "fcmToken": "cE-q7NqkT_A:APA91bF2h-...",
+  "dateOfBirth": "1995-03-21",
+  "nationality": "American",
+  "address": "456 Oak Street, Townsville",
+  "postcode": "12345",
+  "mobileNumber": "+1234567890",
+  "emergencyContactName": "Maria Wilson",
+  "emergencyContactRelation": "Mother",
+  "emergencyContactPhone": "+0987654321",
+  "membershipCommitmentConfirmed": true,
+  "consentContactChurch": true,
+  "consentDataUse": true,
+  "membershipApplicationSignature": "Sam Wilson",
+  "membershipApplicationDate": "2024-08-15",
+  "applicationReceivedDate": "2024-08-16"
+}
 ];
 
 const memberGrowthData = [
@@ -487,7 +473,7 @@ export default function Members({ onLogout }: MembersProps) {
 
   const filteredMembers = members.filter((member) => {
     const searchLower = searchTerm.toLowerCase();
-    const fullName = `${member.firstName} ${member.middlename} ${member.lastName}`.toLowerCase();
+    const fullName = `${member.firstName} ${member.middleName} ${member.lastName}`.toLowerCase();
     
     return (
       fullName.includes(searchLower) ||
@@ -504,14 +490,14 @@ export default function Members({ onLogout }: MembersProps) {
       icon: Users,
       color: "primary" as const,
     },
-    {
-      title: "Active Members",
-      value: members.filter((m) => m.status === "active").length,
-      change: "+8%",
-      changeType: "positive" as const,
-      icon: UserPlus,
-      color: "success" as const,
-    },
+    // {
+    //   title: "Active Members",
+    //   value: members.filter((m) => m.status === "active").length,
+    //   change: "+8%",
+    //   changeType: "positive" as const,
+    //   icon: UserPlus,
+    //   color: "success" as const,
+    // },
     {
       title: "Premium Members",
       value: members.filter((m) => m.membershipType === "premium").length,
@@ -665,8 +651,8 @@ export default function Members({ onLogout }: MembersProps) {
                 <TableHead>Email</TableHead>
                 <TableHead> MembershipType</TableHead>
                 <TableHead>Membership Commitment Confirmed</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Active</TableHead>
+                <TableHead>Christening Name</TableHead>
+                <TableHead>Gender</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -674,23 +660,21 @@ export default function Members({ onLogout }: MembersProps) {
               {filteredMembers.map((member) => (
                 <TableRow key={member.id}>
                   <TableCell className="font-medium">
-                    {`${member.firstName} ${member.middlename} ${member.lastName}`}
+                    {`${member.firstName} ${member.middleName} ${member.lastName}`}
                   </TableCell>
                   <TableCell>{member.email}</TableCell>
                   <TableCell>
                     <Badge className={typeColors[member.membershipType]}>
-                      {member.membershipType}
+                      {member.membershipType }
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {member.membershipCommitmentConfirmed}
+                    {member.membershipCommitmentConfirmed ? "true" : "false"}
                   </TableCell>
                   <TableCell>
-                    <Badge className={statusColors[member.status]}>
-                      {member.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{member.lastActive}</TableCell>
+                    {member.christeningName}
+                  </TableCell> 
+                   <TableCell>{member.gender}</TableCell> 
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -727,7 +711,7 @@ export default function Members({ onLogout }: MembersProps) {
           onClose={() => setShowDeleteConfirm(false)}
           onConfirm={confirmDelete}
           title="Delete Member"
-          itemName={`${memberToDelete?.firstName} ${memberToDelete?.middlename} ${memberToDelete?.lastName}`}
+          itemName={`${memberToDelete?.firstName} ${memberToDelete?.middleName} ${memberToDelete?.lastName}`}
         />
       </div>
     </DashboardLayout>

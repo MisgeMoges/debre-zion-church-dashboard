@@ -478,36 +478,37 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Member } from "@/types/members";
 
-interface Member {
-  id?: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  middleName: string;
-  profileImage: string;
-  memberCategory: string;
-  maritalStatus: string;
-  gender: string;
-  membershipType: string;
-  christeningName: string;
-  spiritualFatherName: string;
-  fcmToken: string;
-  dateOfBirth: string;
-  nationality: string;
-  address: string;
-  postcode: string;
-  mobileNumber: string;
-  emergencyContactName: string;
-  emergencyContactRelation: string;
-  emergencyContactPhone: string;
-  membershipCommitmentConfirmed: boolean;
-  consentContactChurch: boolean;
-  consentDataUse: boolean;
-  membershipApplicationSignature: string;
-  membershipApplicationDate: string;
-  applicationReceivedDate: string;
-}
+// interface Member {
+//   id?: string;
+//   email: string;
+//   firstName: string;
+//   lastName: string;
+//   middleName: string;
+//   profileImage: string;
+//   memberCategory: string;
+//   maritalStatus: string;
+//   gender: string;
+//   membershipType: string;
+//   christeningName: string;
+//   spiritualFatherName: string;
+//   fcmToken: string;
+//   dateOfBirth: string;
+//   nationality: string;
+//   address: string;
+//   postcode: string;
+//   mobileNumber: string;
+//   emergencyContactName: string;
+//   emergencyContactRelation: string;
+//   emergencyContactPhone: string;
+//   membershipCommitmentConfirmed: boolean;
+//   consentContactChurch: boolean;
+//   consentDataUse: boolean;
+//   membershipApplicationSignature: string;
+//   membershipApplicationDate: string;
+//   applicationReceivedDate: string;
+// }
 
 interface MemberFormProps {
   member?: Member;
@@ -521,7 +522,7 @@ export function MemberForm({ member, open, onClose, onSubmit }: MemberFormProps)
   const [step, setStep] = useState(1);
   
   const [formData, setFormData] = useState<Member>({
-    id: member?.id || "",
+    id: member?.id ,
     email: member?.email || "",
     firstName: member?.firstName || "",
     lastName: member?.lastName || "",
@@ -732,6 +733,18 @@ export function MemberForm({ member, open, onClose, onSubmit }: MemberFormProps)
                   onChange={(e) => handleChange("memberCategory", e.target.value)}
                 />
               </div>
+
+               <div className="space-y-2">
+                <Label htmlFor="membership type">Membership Type *</Label>
+                <Input
+                  id="membershipType"
+                  name="membershipType"
+                  value={formData.membershipType}
+                  onChange={(e) => handleChange("membershipType", e.target.value)}
+                  placeholder="Enter Membership Type"
+                  required
+                />
+                </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="christeningName">Christening Name</Label>

@@ -15,12 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Holiday {
   id?: number;
-  name: string;
+  title: string;
   date: string;
-  endDate: string;
-  location: string;
-  type: string;
-  status: string;
+  reminderAdvanceDays: number;
   description: string;
 }
 
@@ -34,12 +31,9 @@ interface HolidayFormProps {
 export function HolidayForm({ holiday, open, onClose, onSubmit }: HolidayFormProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Holiday>({
-    name: holiday?.name || "",
+    title: holiday?.title || "",
+    reminderAdvanceDays: holiday?.reminderAdvanceDays ,
     date: holiday?.date || new Date().toISOString().split('T')[0],
-    endDate: holiday?.endDate || new Date().toISOString().split('T')[0],
-    location: holiday?.location || "",
-    type: holiday?.type || "celebration",
-    status: holiday?.status || "upcoming",
     description: holiday?.description || "",
     ...(holiday?.id && { id: holiday.id }),
   });
@@ -47,7 +41,7 @@ export function HolidayForm({ holiday, open, onClose, onSubmit }: HolidayFormPro
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.location) {
+    if (!formData.title || !formData.date) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -82,8 +76,8 @@ export function HolidayForm({ holiday, open, onClose, onSubmit }: HolidayFormPro
             <Label htmlFor="name">Holiday Name *</Label>
             <Input
               id="name"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
+              value={formData.title}
+              onChange={(e) => handleChange("title", e.target.value)}
               placeholder="Enter holiday name"
               required
             />
@@ -102,59 +96,18 @@ export function HolidayForm({ holiday, open, onClose, onSubmit }: HolidayFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endDate">End Date</Label>
+              <Label htmlFor="endDate">Reminder Advance Days</Label>
               <Input
                 id="endDate"
                 type="date"
-                value={formData.endDate}
-                onChange={(e) => handleChange("endDate", e.target.value)}
+                value={formData.reminderAdvanceDays}
+                onChange={(e) => handleChange("reminderAdvanceDays", e.target.value)}
                 required
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="location">Location *</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => handleChange("location", e.target.value)}
-              placeholder="Enter location"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Select value={formData.type} onValueChange={(value) => handleChange("type", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="celebration">Celebration</SelectItem>
-                  <SelectItem value="festival">Festival</SelectItem>
-                  <SelectItem value="national">National</SelectItem>
-                  <SelectItem value="religious">Religious</SelectItem>
-                  <SelectItem value="cultural">Cultural</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="upcoming">Upcoming</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+         
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
