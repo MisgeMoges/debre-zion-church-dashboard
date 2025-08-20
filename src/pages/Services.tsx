@@ -20,12 +20,25 @@ const servicesDistribution = [
   { name: "Other", value: 5, color: "#ef4444" },
 ];
 
+interface Service {
+  id?: number;
+  title: string;
+  description: string;
+  imageUrls:[]
+  category: string;
+  price: number;
+  time: string;
+  location: string;
+  leader: string;
+}
+
 const mockServices = [
-  { id: 1, name: "Yoga Classes", description: "Weekly yoga sessions for all levels", category: "fitness", price: 25, duration: "60 min", capacity: 20, status: "active", provider: "Sarah Johnson" },
-  { id: 2, name: "Mental Health Counseling", description: "Individual counseling sessions", category: "counseling", price: 80, duration: "50 min", capacity: 1, status: "active", provider: "Dr. Mike Wilson" },
-  { id: 3, name: "Cooking Workshop", description: "Learn healthy cooking techniques", category: "workshop", price: 45, duration: "120 min", capacity: 15, status: "active", provider: "Chef Maria Garcia" },
-  { id: 4, name: "Support Group", description: "Weekly support group meetings", category: "support", price: 0, duration: "90 min", capacity: 12, status: "active", provider: "Community Volunteers" },
-  { id: 5, name: "Computer Basics", description: "Basic computer skills training", category: "workshop", price: 30, duration: "180 min", capacity: 10, status: "inactive", provider: "Tech Team" },
+  { id: 1, title: "Yoga Classes", description: "Weekly yoga sessions for all levels", category: "fitness", price: 25, time: "60 min",  leader: "Sarah Johnson",location:'addids ababa' },
+  { id: 2, title: "Yoga Classes", description: "Weekly yoga sessions for all levels", category: "fitness", price: 25, time: "60 min",  leader: "Sarah Johnson",location:'addids ababa' },
+  
+  { id: 3, title: "Yoga Classes", description: "Weekly yoga sessions for all levels", category: "fitness", price: 25, time: "60 min",  leader: "Sarah Johnson",location:'addids ababa' },
+  { id: 4, title: "Yoga Classes", description: "Weekly yoga sessions for all levels", category: "fitness", price: 25, time: "60 min",  leader: "Sarah Johnson",location:'addids ababa' },
+  
 ];
 
 interface ServicesProps {
@@ -41,14 +54,14 @@ export default function Services({ onLogout }: ServicesProps) {
   const { toast } = useToast();
 
   const totalServices = services.length;
-  const activeServices = services.filter(s => s.status === "active").length;
+  // const activeServices = services.filter(s => s.status === "active").length;
   const totalRevenue = services.reduce((sum, service) => sum + service.price, 0);
   const avgPrice = totalRevenue / services.length;
 
   const filteredServices = services.filter(service =>
-    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     service.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.provider.toLowerCase().includes(searchTerm.toLowerCase())
+    service.leader.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSubmit = (serviceData: any) => {
@@ -108,9 +121,9 @@ export default function Services({ onLogout }: ServicesProps) {
               <CardTitle className="text-sm font-medium">Active Services</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
+            {/* <CardContent>
               <div className="text-2xl font-bold">{activeServices}</div>
-            </CardContent>
+            </CardContent> */}
           </Card>
           <Card className="card-elevated animate-slide-up">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -189,28 +202,24 @@ export default function Services({ onLogout }: ServicesProps) {
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Capacity</TableHead>
-                  <TableHead>Provider</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>time</TableHead>
+                  <TableHead>Leader</TableHead>
+                  <TableHead>Location</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredServices.map((service) => (
                   <TableRow key={service.id}>
-                    <TableCell className="font-medium">{service.name}</TableCell>
+                    <TableCell className="font-medium">{service.title}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{service.category}</Badge>
                     </TableCell>
                     <TableCell>${service.price}</TableCell>
-                    <TableCell>{service.duration}</TableCell>
-                    <TableCell>{service.capacity}</TableCell>
-                    <TableCell>{service.provider}</TableCell>
+                    <TableCell>{service.time}</TableCell>
+                    <TableCell>{service.leader}</TableCell>
                     <TableCell>
-                      <Badge variant={service.status === "active" ? "default" : service.status === "inactive" ? "secondary" : "destructive"}>
-                        {service.status}
-                      </Badge>
+                      {service.location}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
