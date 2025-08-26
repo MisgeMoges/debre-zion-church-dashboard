@@ -15,14 +15,14 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Service {
   id?: number;
-  name: string;
+  title: string;
   description: string;
+  imageUrls:[]
   category: string;
   price: number;
-  duration: string;
-  capacity: number;
-  status: string;
-  provider: string;
+  time: string;
+  location: string;
+  leader: string;
 }
 
 interface ServiceFormProps {
@@ -35,21 +35,21 @@ interface ServiceFormProps {
 export function ServiceForm({ service, open, onClose, onSubmit }: ServiceFormProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Service>({
-    name: service?.name || "",
+    title: service?.title || "",
     description: service?.description || "",
     category: service?.category || "fitness",
     price: service?.price || 0,
-    duration: service?.duration || "",
-    capacity: service?.capacity || 1,
-    status: service?.status || "active",
-    provider: service?.provider || "",
+    time: service?.time || "",
+    location: service?.location || "",
+    leader: service?.leader || "",
+    imageUrls: service?.imageUrls ,
     ...(service?.id && { id: service.id }),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.provider) {
+    if (!formData.title || !formData.location) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -85,8 +85,8 @@ export function ServiceForm({ service, open, onClose, onSubmit }: ServiceFormPro
               <Label htmlFor="name">Service Name *</Label>
               <Input
                 id="name"
-                value={formData.name}
-                onChange={(e) => handleChange("name", e.target.value)}
+                value={formData.title}
+                onChange={(e) => handleChange("title", e.target.value)}
                 placeholder="Enter service name"
                 required
               />
@@ -94,21 +94,16 @@ export function ServiceForm({ service, open, onClose, onSubmit }: ServiceFormPro
             
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fitness">Fitness</SelectItem>
-                  <SelectItem value="counseling">Counseling</SelectItem>
-                  <SelectItem value="workshop">Workshop</SelectItem>
-                  <SelectItem value="support">Support</SelectItem>
-                  <SelectItem value="education">Education</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+               <Input
+                id="category"
+                value={formData.category}
+                onChange={(e) => handleChange("title", e.target.value)}
+                placeholder="Enter service name"
+                required
+              />
             </div>
-          </div>
+            </div>
+          
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
@@ -135,11 +130,11 @@ export function ServiceForm({ service, open, onClose, onSubmit }: ServiceFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="duration">Time</Label>
               <Input
-                id="duration"
-                value={formData.duration}
-                onChange={(e) => handleChange("duration", e.target.value)}
+                id="time"
+                value={formData.time}
+                onChange={(e) => handleChange("time", e.target.value)}
                 placeholder="e.g., 60 min"
               />
             </div>
@@ -147,38 +142,26 @@ export function ServiceForm({ service, open, onClose, onSubmit }: ServiceFormPro
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="capacity">Capacity</Label>
+              <Label htmlFor="leader">Leader</Label>
               <Input
-                id="capacity"
-                type="number"
-                value={formData.capacity}
-                onChange={(e) => handleChange("capacity", parseInt(e.target.value) || 1)}
-                placeholder="Max participants"
+                id="leader"
+                type="string"
+                value={formData.leader}
+                onChange={(e) => handleChange("leader", e.target.value)}
+              placeholder="Enter service leader name"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleChange("status", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+           
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="provider">Provider *</Label>
+            <Label htmlFor="provider">Location *</Label>
             <Input
-              id="provider"
-              value={formData.provider}
-              onChange={(e) => handleChange("provider", e.target.value)}
-              placeholder="Enter provider name"
+              id="location"
+              value={formData.location}
+              onChange={(e) => handleChange("location", e.target.value)}
+              placeholder="Enter location"
               required
             />
           </div>

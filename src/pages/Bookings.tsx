@@ -37,56 +37,57 @@ import {
 } from "lucide-react";
 
 interface Booking {
-  id: number;
-  facility: string;
-  member: string;
+  id: string;
+  userId: string;
+  memberName: string;
+  contact: string;
   date: string;
-  time: string;
-  duration: string;
+  serviceType:string,
+  message: string;
   status: "confirmed" | "pending" | "cancelled";
-  createdAt: string;
+ 
 }
 
 const mockBookings: Booking[] = [
   {
-    id: 1,
-    facility: "Community Center",
-    member: "John Smith",
+    id: "1",
+    userId: "01",
+    memberName: "John Smith",
     date: "2024-08-12",
-    time: "2:00 PM",
-    duration: "2 hours",
-    status: "confirmed",
-    createdAt: "2024-08-09",
+    message: "be on time",
+    status: "confirmed"  ,
+    serviceType:"holiday",
+    contact:"09344586"  
   },
   {
-    id: 2,
-    facility: "Tennis Court #1",
-    member: "Sarah Johnson",
-    date: "2024-08-11",
-    time: "10:00 AM",
-    duration: "1 hour",
-    status: "pending",
-    createdAt: "2024-08-09",
+     id: "2",
+    userId: "02",
+    memberName: "John Smith",
+    date: "2024-08-12",
+    message: "be on time",
+    status: "confirmed"  ,
+    serviceType:"holiday",
+    contact:"09344586"  
   },
   {
-    id: 3,
-    facility: "Pool Area",
-    member: "Mike Chen",
-    date: "2024-08-10",
-    time: "3:30 PM",
-    duration: "1.5 hours",
-    status: "confirmed",
-    createdAt: "2024-08-08",
+     id: "3",
+    userId: "03",
+    memberName: "John Smith",
+    date: "2024-08-12",
+    message: "be on time",
+    status: "confirmed"  ,
+    serviceType:"holiday",
+    contact:"09344586"  
   },
   {
-    id: 4,
-    facility: "Basketball Court",
-    member: "Emily Davis",
-    date: "2024-08-09",
-    time: "7:00 PM",
-    duration: "2 hours",
-    status: "cancelled",
-    createdAt: "2024-08-07",
+    id: "4",
+    userId: "04",
+    memberName: "John Smith",
+    date: "2024-08-12",
+    message: "be on time",
+    status: "confirmed"  ,
+    serviceType:"holiday",
+    contact:"09344586"  
   },
 ];
 
@@ -112,8 +113,7 @@ export default function Bookings({ onLogout }: BookingsProps) {
   const [bookingToDelete, setBookingToDelete] = useState<Booking | null>(null);
 
   const filteredBookings = bookings.filter(booking =>
-    booking.facility.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    booking.member.toLowerCase().includes(searchTerm.toLowerCase())
+   booking.memberName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const summaryData = [
@@ -172,13 +172,17 @@ export default function Bookings({ onLogout }: BookingsProps) {
     setShowDeleteConfirm(true);
   };
 
+  function generateUniqueId() {
+  return Math.random().toString(36).substr(2, 9);
+}
+
   const handleFormSubmit = (bookingData: Booking) => {
     if (selectedBooking) {
       // Update existing booking
       setBookings(prev => prev.map(b => b.id === selectedBooking.id ? { ...bookingData, id: selectedBooking.id } : b));
     } else {
       // Add new booking
-      const newId = Math.max(...bookings.map(b => b.id)) + 1;
+      const newId = generateUniqueId();
       setBookings(prev => [...prev, { ...bookingData, id: newId }]);
     }
     setShowForm(false);
@@ -277,30 +281,28 @@ export default function Bookings({ onLogout }: BookingsProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Facility</TableHead>
                 <TableHead>Member</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Duration</TableHead>
+                <TableHead>Message</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Service Type</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredBookings.map((booking) => (
                 <TableRow key={booking.id}>
-                  <TableCell className="font-medium">
-                    {booking.facility}
-                  </TableCell>
-                  <TableCell>{booking.member}</TableCell>
+                 <TableCell>{booking.memberName}</TableCell>
                   <TableCell>{booking.date}</TableCell>
-                  <TableCell>{booking.time}</TableCell>
-                  <TableCell>{booking.duration}</TableCell>
+                  <TableCell>{booking.message}</TableCell>
+                  <TableCell>{booking.contact}</TableCell>
                   <TableCell>
                     <Badge className={statusColors[booking.status]}>
                       {booking.status}
                     </Badge>
                   </TableCell>
+                  <TableCell>{booking.serviceType}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button variant="ghost" size="sm" onClick={() => handleEditBooking(booking)}>
@@ -331,7 +333,7 @@ export default function Bookings({ onLogout }: BookingsProps) {
           onClose={() => setShowDeleteConfirm(false)}
           onConfirm={confirmDelete}
           title="Delete Booking"
-          itemName={`booking for ${bookingToDelete?.facility}`}
+          // itemName={`booking for ${bookingToDelete?.facility}`}
         />
       </div>
     </DashboardLayout>

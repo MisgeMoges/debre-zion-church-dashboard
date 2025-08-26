@@ -20,12 +20,23 @@ const donationsData = [
   { month: "Jun", amount: 19800 },
 ];
 
-const mockDonations = [
-  { id: 1, donor: "John Smith", amount: 500, date: "2024-08-08", status: "completed", type: "one-time" },
-  { id: 2, donor: "Sarah Johnson", amount: 100, date: "2024-08-07", status: "completed", type: "monthly" },
-  { id: 3, donor: "Mike Wilson", amount: 750, date: "2024-08-06", status: "pending", type: "one-time" },
-  { id: 4, donor: "Emma Brown", amount: 200, date: "2024-08-05", status: "completed", type: "monthly" },
-  { id: 5, donor: "David Lee", amount: 1000, date: "2024-08-04", status: "completed", type: "one-time" },
+interface Donation {
+  id?: number;
+  userId:number;
+ description:string;
+ method:string;
+ transactionId:string;
+  amount: number;
+  date: string;
+  status: string;
+  paymentType: string;
+}
+
+const mockDonations:Donation[] = [
+  { id: 1, userId: 1, amount: 500, date: "2024-08-08", status: "completed", paymentType: "one-time",description:'holiday',method:'bank',transactionId:'98' },
+  { id: 2, userId: 2, amount: 500, date: "2024-08-08", status: "completed", paymentType: "one-time",description:'holiday',method:'bank',transactionId:'98' },
+  { id: 3, userId: 3, amount: 500, date: "2024-08-08", status: "completed", paymentType: "one-time",description:'holiday',method:'bank',transactionId:'98' },
+  { id: 4, userId: 4, amount: 500, date: "2024-08-08", status: "completed", paymentType: "one-time",description:'holiday',method:'bank',transactionId:'98' },
 ];
 
 interface DonationsProps {
@@ -41,13 +52,13 @@ export default function Donations({ onLogout }: DonationsProps) {
 
   const totalDonations = donations.reduce((sum, donation) => sum + donation.amount, 0);
   const completedDonations = donations.filter(d => d.status === "completed").length;
-  const monthlyDonors = donations.filter(d => d.type === "monthly").length;
+  const monthlyDonors = donations.filter(d => d.paymentType === "monthly").length;
   const avgDonation = totalDonations / donations.length;
 
-  const filteredDonations = donations.filter(donation =>
-    donation.donor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    donation.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredDonations = donations.filter(donation =>
+  //   donation.donor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //   donation.type.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   const handleFormSubmit = (donationData: any) => {
     if (selectedDonation) {
@@ -191,23 +202,26 @@ export default function Donations({ onLogout }: DonationsProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Donor</TableHead>
+                  <TableHead>Donor Id</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Payment Type</TableHead>
+                  <TableHead>Status</TableHead>                  
+                  <TableHead>description</TableHead>
+                  <TableHead>method</TableHead>
+                  <TableHead>transaction Id</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredDonations.map((donation) => (
+                {donations.map((donation) => (
                   <TableRow key={donation.id}>
-                    <TableCell className="font-medium">{donation.donor}</TableCell>
+                    <TableCell className="font-medium">{donation.userId}</TableCell>
                     <TableCell>${donation.amount}</TableCell>
                     <TableCell>{donation.date}</TableCell>
                     <TableCell>
-                      <Badge variant={donation.type === "monthly" ? "default" : "secondary"}>
-                        {donation.type}
+                      <Badge variant={donation.paymentType === "monthly" ? "default" : "secondary"}>
+                        {donation.paymentType}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -215,6 +229,10 @@ export default function Donations({ onLogout }: DonationsProps) {
                         {donation.status}
                       </Badge>
                     </TableCell>
+                    
+                    <TableCell>{donation.description}</TableCell>
+                    <TableCell>{donation.method}</TableCell>
+                    <TableCell>{donation.transactionId}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Plus, Search, Edit, Trash2, Calendar, Clock, MapPin, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { title } from "process";
 
 // Mock data
 const holidaysData = [
@@ -26,12 +27,22 @@ const holidaysData = [
   { month: "Dec", count: 4 },
 ];
 
+interface Holiday {
+  id?: number;
+  title: string;
+  date: string;
+  reminderAdvanceDays: number;
+  description: string;
+}
+
+
 const mockHolidays = [
-  { id: 1, name: "Summer Festival", date: "2024-08-15", endDate: "2024-08-17", location: "Community Center", type: "festival", status: "upcoming", description: "Annual summer celebration with food and music" },
-  { id: 2, name: "Independence Day", date: "2024-07-04", endDate: "2024-07-04", location: "Main Park", type: "national", status: "completed", description: "National holiday celebration" },
-  { id: 3, name: "Christmas", date: "2024-12-25", endDate: "2024-12-25", location: "Various Venues", type: "religious", status: "upcoming", description: "Christmas celebration events" },
-  { id: 4, name: "New Year", date: "2024-12-31", endDate: "2025-01-01", location: "Town Square", type: "celebration", status: "upcoming", description: "New Year's Eve celebration" },
-  { id: 5, name: "Easter", date: "2024-03-31", endDate: "2024-03-31", location: "Community Hall", type: "religious", status: "completed", description: "Easter celebration and egg hunt" },
+  { id: 1, title: "Summer Festival", date: "2024-08-15", reminderAdvanceDays: "2024-08-17",  description: "Annual summer celebration with food and music" },
+  { id: 2, title: "Summer Festival", date: "2024-08-15", reminderAdvanceDays: "2024-08-17",  description: "Annual summer celebration with food and music" },
+  { id: 3, title: "Summer Festival", date: "2024-08-15", reminderAdvanceDays: "2024-08-17",  description: "Annual summer celebration with food and music" },
+  { id: 4, title: "Summer Festival", date: "2024-08-15", reminderAdvanceDays: "2024-08-17",  description: "Annual summer celebration with food and music" },
+  { id: 5, title: "Summer Festival", date: "2024-08-15", reminderAdvanceDays: "2024-08-17",  description: "Annual summer celebration with food and music" },
+ 
 ];
 
 interface HolidaysProps {
@@ -46,8 +57,8 @@ export default function Holidays({ onLogout }: HolidaysProps) {
   const { toast } = useToast();
 
   const totalHolidays = holidays.length;
-  const upcomingHolidays = holidays.filter(h => h.status === "upcoming").length;
-  const completedHolidays = holidays.filter(h => h.status === "completed").length;
+  // const upcomingHolidays = holidays.filter(h => h.status === "upcoming").length;
+  // const completedHolidays = holidays.filter(h => h.status === "completed").length;
   const thisMonthHolidays = holidays.filter(h => {
     const holidayDate = new Date(h.date);
     const currentDate = new Date();
@@ -55,14 +66,13 @@ export default function Holidays({ onLogout }: HolidaysProps) {
   }).length;
 
   const filteredHolidays = holidays.filter(holiday =>
-    holiday.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    holiday.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    holiday.type.toLowerCase().includes(searchTerm.toLowerCase())
+    holiday.title.toLowerCase().includes(searchTerm.toLowerCase()) 
+    
   );
 
   const handleFormSubmit = (holidayData: any) => {
     if (selectedHoliday) {
-      // Update existing holiday
+     
       setHolidays(holidays.map(h => 
         h.id === selectedHoliday.id 
           ? { ...holidayData, id: selectedHoliday.id }
@@ -128,18 +138,18 @@ export default function Holidays({ onLogout }: HolidaysProps) {
               <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
+            {/* <CardContent>
               <div className="text-2xl font-bold">{upcomingHolidays}</div>
-            </CardContent>
+            </CardContent> */}
           </Card>
           <Card className="card-elevated animate-slide-up">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Completed</CardTitle>
               <Star className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
+            {/* <CardContent>
               <div className="text-2xl font-bold">{completedHolidays}</div>
-            </CardContent>
+            </CardContent> */}
           </Card>
           <Card className="card-elevated animate-slide-up">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -202,30 +212,28 @@ export default function Holidays({ onLogout }: HolidaysProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>Title</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
+                 <TableHead>Reminder Advance Days</TableHead>
+                  <TableHead>description</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredHolidays.map((holiday) => (
                   <TableRow key={holiday.id}>
-                    <TableCell className="font-medium">{holiday.name}</TableCell>
+                    <TableCell className="font-medium">{holiday.title}</TableCell>
                     <TableCell>
-                      {holiday.date === holiday.endDate ? holiday.date : `${holiday.date} - ${holiday.endDate}`}
-                    </TableCell>
-                    <TableCell>{holiday.location}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{holiday.type}</Badge>
+                     {holiday.date}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={holiday.status === "upcoming" ? "default" : holiday.status === "completed" ? "secondary" : "destructive"}>
-                        {holiday.status}
-                      </Badge>
+                     {holiday.reminderAdvanceDays}
                     </TableCell>
+                    <TableCell>
+                     {holiday.description}
+                    </TableCell>
+                            
+                   
                     <TableCell>
                       <div className="flex gap-2">
                         <Button

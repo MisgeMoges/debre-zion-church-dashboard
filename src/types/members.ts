@@ -1,0 +1,29 @@
+ export interface Member {
+  id?: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  profileImage: string;
+  memberCategory: string;
+  maritalStatus: string;
+  gender: string;
+  membershipType: string;
+  christeningName: string;
+  spiritualFatherName: string;
+  fcmToken: string;
+  dateOfBirth: string;
+  nationality: string;
+  address: string;
+  postcode: string;
+  mobileNumber: string;
+  emergencyContactName: string;
+  emergencyContactRelation: string;
+  emergencyContactPhone: string;
+  membershipCommitmentConfirmed: boolean;
+  consentContactChurch: boolean;
+  consentDataUse: boolean;
+  membershipApplicationSignature: string;
+  membershipApplicationDate: string;
+  applicationReceivedDate: string;
+}

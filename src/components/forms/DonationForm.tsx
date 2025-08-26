@@ -14,11 +14,14 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Donation {
   id?: number;
-  donor: string;
+  userId:number;
+ description:string;
+ method:string;
+ transactionId:string;
   amount: number;
   date: string;
   status: string;
-  type: string;
+  paymentType: string;
 }
 
 interface DonationFormProps {
@@ -31,18 +34,22 @@ interface DonationFormProps {
 export function DonationForm({ donation, open, onClose, onSubmit }: DonationFormProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Donation>({
-    donor: donation?.donor || "",
     amount: donation?.amount || 0,
-    date: donation?.date || new Date().toISOString().split('T')[0],
+    date: donation?.date ,
     status: donation?.status || "pending",
-    type: donation?.type || "one-time",
+    paymentType: donation?.paymentType || "one-time",
+    transactionId: donation?.transactionId ,
+    method: donation?.method ,
+    description: donation?.description ,
+    id: donation?.id ,
+    userId: donation?.userId ,
     ...(donation?.id && { id: donation.id }),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.donor || formData.amount <= 0) {
+    if (!formData.userId || formData.amount <= 0) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -73,16 +80,47 @@ export function DonationForm({ donation, open, onClose, onSubmit }: DonationForm
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="donor">Donor Name *</Label>
+
+          <div className="grid grid-cols-2 gap-4">
+             <div className="space-y-2">
+            <Label htmlFor="donor">Donor Id *</Label>
             <Input
               id="donor"
-              value={formData.donor}
-              onChange={(e) => handleChange("donor", e.target.value)}
-              placeholder="Enter donor name"
+              value={formData.userId}
+              onChange={(e) => handleChange("userId", e.target.value)}
+              placeholder="Enter donor Id"
               required
             />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="transactionId">Transaction ID *</Label>
+            <Input
+              id="transactionId"
+              value={formData.transactionId}
+              onChange={(e) => handleChange("transactionId", e.target.value)}
+              placeholder="Enter transaction Id"
+              required
+            />
+          </div>
+
+
+          </div>
+          
+
+          <div className="space-y-2">
+            <Label htmlFor="description">description *</Label>
+            <Input
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleChange("description", e.target.value)}
+              placeholder="Enter description"
+              required
+            />
+          </div>
+         
+
+          
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -110,10 +148,21 @@ export function DonationForm({ donation, open, onClose, onSubmit }: DonationForm
             </div>
           </div>
 
+           <div className="space-y-2">
+            <Label htmlFor="method">Method *</Label>
+            <Input
+              id="method"
+              value={formData.method}
+              onChange={(e) => handleChange("method", e.target.value)}
+              placeholder="Enter payment method"
+              required
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
-              <Select value={formData.type} onValueChange={(value) => handleChange("type", value)}>
+              <Select value={formData.paymentType} onValueChange={(value) => handleChange("paymentType", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
