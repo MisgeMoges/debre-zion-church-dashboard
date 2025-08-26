@@ -155,17 +155,21 @@ export function AnnouncementForm({ announcement, open, onClose, onSubmit }: Anno
           
             <div className="space-y-2">
               <Label htmlFor="status">Target Type</Label>
-              <Select value={formData.targetType} onValueChange={(value) => handleChange("targetType", value)}>
+              <Select
+                value={formData.targetType}
+                onValueChange={(value) => handleChange("targetType", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Target Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={formData.targetType} onClick={() => handleChange("targetType", "all")}>All</SelectItem>
-                  <SelectItem value={formData.targetType} onClick={() => handleChange("targetType", "clergy")}>Clergy</SelectItem>
-                  <SelectItem value={formData.targetType} onClick={() => handleChange("targetType", "archived")}>Members</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="clergy">Clergy</SelectItem>
+                  <SelectItem value="archived">Members</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
           </div>
 
           <div className="space-y-2">

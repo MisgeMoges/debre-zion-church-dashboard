@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { AnnouncementForm } from "@/components/forms/AnnouncementForm";
@@ -36,54 +36,28 @@ import {
   Archive,
 } from "lucide-react";
 
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "@/firebase";
-
-interface Announcement {
- 
-  id: string;
-  title: string;
-  body: string;
-  imageUrl?: string;
-  isRead?: boolean;
-  targetCategories?: string[] | null;
-  targetType?: string;
-  targetUserIds?: string[] | null;
-  timestamp?: any;
-};
+import {
+  useGetAnnouncementsQuery,
+  useAddAnnouncementMutation,
+  useUpdateAnnouncementMutation,
+  useDeleteAnnouncementMutation,
+} from "@/state/services/announcements";
+import { Announcement } from "@/types/annoucement";
 
 interface AnnouncementsProps {
   onLogout?: () => void;
 }
 
 export default function Announcements({ onLogout }: AnnouncementsProps) {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  
-// console.log("selectedAnnouncement", selectedAnnouncement);
-useEffect(() => {
-  const fetchAnnouncements = async () => {
-    setLoading(true);
-    try {
-      const q = query(collection(db, "announcements"));
-      const snapshot = await getDocs(q);
-      const list: Announcement[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Announcement[];
-      setAnnouncements(list);
-    } catch (error) {
-      console.error("Error fetching announcements:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchAnnouncements();
-}, []);
 
+  // ✅ RTK Query hooks
+  const { data: announcements = [], isLoading } = useGetAnnouncementsQuery();
+  const [addAnnouncement] = useAddAnnouncementMutation();
+  const [updateAnnouncement] = useUpdateAnnouncementMutation();
+  const [deleteAnnouncement] = useDeleteAnnouncementMutation();
 
   const filteredAnnouncements = announcements.filter((a) =>
     a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -131,49 +105,41 @@ useEffect(() => {
     draft: "bg-warning text-warning-foreground",
   };
 
-  // 🔹 Delete announcement
+  // 🔹 Handlers
   const handleDelete = async (id: string) => {
-    await deleteDoc(doc(db, "announcements", id));
-    setAnnouncements((prev) => prev.filter((a) => a.id !== id));
+    try {
+      await deleteAnnouncement(id);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  // 🔹 Edit announcement
   const handleEdit = (announcement: Announcement) => {
     setSelectedAnnouncement(announcement);
     setIsFormDialogOpen(true);
   };
 
-  // 🔹 Add new announcement
   const handleAdd = () => {
     setSelectedAnnouncement(null);
     setIsFormDialogOpen(true);
   };
 
-  // 🔹 Save new or updated announcement
   const handleFormSubmit = async (data: Announcement) => {
-    if (selectedAnnouncement) {
-      await updateDoc(doc(db, "announcements", selectedAnnouncement.id), {
-        ...data,
-      });
-      setAnnouncements((prev) =>
-        prev.map((a) => (a.id === selectedAnnouncement.id ? { ...data, id: a.id } : a))
-      );
-    } else {
-      const docRef = await addDoc(collection(db, "announcements"), {
-        ...data,
-        date: new Date().toISOString(),
-        author: auth.currentUser?.displayName || "Unknown",
-        views: 0,
-        targetCategories: ["clergy"], // default or dynamic
-        timestamp: serverTimestamp(),
-      });
-      setAnnouncements((prev) => [{ ...data, id: docRef.id }, ...prev]);
+    try {
+      if (selectedAnnouncement) {
+        await updateAnnouncement({ ...selectedAnnouncement, ...data });
+      } else {
+        await addAnnouncement(data);
+      }
+      setIsFormDialogOpen(false);
+      setSelectedAnnouncement(null);
+    } catch (error) {
+      console.error(error);
     }
-    setIsFormDialogOpen(false);
-    setSelectedAnnouncement(null);
   };
 
- 
+  if (isLoading) return <DashboardLayout>Loading...</DashboardLayout>;
+
   return (
     <DashboardLayout onLogout={onLogout}>
       {/* HEADER */}
@@ -218,6 +184,7 @@ useEffect(() => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Id</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Message</TableHead>
                 <TableHead>Date</TableHead>
@@ -227,11 +194,12 @@ useEffect(() => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredAnnouncements.map((a, index) => (
-                <TableRow key={a.id || `row-${index}`}>
+              {filteredAnnouncements.map((a) => (
+                <TableRow key={a.id}>
+                  <TableCell>{a.id}</TableCell>
                   <TableCell>{a.title}</TableCell>
                   <TableCell>{a.body}</TableCell>
-                  <TableCell>{a.timestamp?.toDate().toLocaleDateString()}</TableCell>
+                  <TableCell>{a.timestamp?.toDate?.()?.toLocaleDateString?.()}</TableCell>
                   <TableCell>
                     <Badge className={statusColors[a.targetType]}>{a.targetType}</Badge>
                   </TableCell>
@@ -255,7 +223,12 @@ useEffect(() => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction className="bg-red-500 hover:bg-red-600" onClick={() => handleDelete(a.id)}>Delete</AlertDialogAction>
+                          <AlertDialogAction
+                            className="bg-red-500 hover:bg-red-600"
+                            onClick={() => handleDelete(a.id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
